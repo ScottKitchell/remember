@@ -1,6 +1,7 @@
 import React, {ReactNode, useState} from 'react'
 import {View, Text, TextInput, StyleSheet} from 'react-native'
 import {colors} from 'theme'
+import styled from 'styled-components/native'
 
 interface SearchProps {
   onSearchChange: (value: string) => void
@@ -16,23 +17,18 @@ export const Search = ({onSearchChange, minimize}: SearchProps) => {
   // }
 
   return (
-    <View style={styles.container}>
-      <TextInput onChangeText={onSearchChange} style={styles.searchBar} placeholder="Search" />
-    </View>
+    <Container>
+      <SearchBar onChangeText={onSearchChange} placeholder="Search" />
+    </Container>
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 10,
-  },
-  searchBar: {
-    // paddingTop: 8,
-    // paddingRight: 16,
-    // paddingBottom: 16,
-    // paddingLeft: 8,
-    height: 36,
-    backgroundColor: '#fff',
-    borderRadius: 25,
-  },
-})
+const Container = styled.View`
+  padding: 10px;
+`
+
+const SearchBar = styled.TextInput`
+  height: 36px;
+  background-color: #fff;
+  border-radius: 25px;
+`
