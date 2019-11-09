@@ -18,7 +18,7 @@ export const Search = ({onSearchChange, minimize}: SearchProps) => {
 
   return (
     <Container>
-      <SearchBar onChangeText={onSearchChange} placeholder="Search" />
+      <SearchBar onChangeText={onSearchChange} />
     </Container>
   )
 }
@@ -27,7 +27,7 @@ const Container = styled.View`
   padding: 10px;
 `
 
-const SearchBar = styled.TextInput`
+const SearchBar = styled.TextInput.attrs({placeholder: 'Search'})`
   height: 36px;
   background-color: #fff;
   border-radius: 25px;
