@@ -8,12 +8,10 @@
  */
 
 import React from 'react'
-import {SafeAreaView, StyleSheet, ScrollView, View, Text, StatusBar} from 'react-native'
-
 import NotesScreen from 'components/notes-screen'
 
 const App = () => {
-  return <NotesScreen>hey there!!!</NotesScreen>
+  return <NotesScreen />
 }
 
 export default App

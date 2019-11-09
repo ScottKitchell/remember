@@ -5,5 +5,9 @@ export const colors = {
   secondary: '#DAF7A6',
   highlight: '#FFC300',
   error: '#FF5733',
-  white: '#FCFCFC',
+  background: '#FCFCFC',
+  bubble: '#f0f0f0',
+  bubbleLight: '#fafafa',
+  textDark: 'rgba(0,0,0,0.9)',
+  textLight: 'rgba(255,255,255,0.9)',
 }
