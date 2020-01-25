@@ -8,13 +8,14 @@ import {
 } from 'react-native'
 import styled from 'styled-components/native'
 import {colors} from 'theme'
-import {noteBundle, unsavedNoteBundle} from 'data-store/data-types'
-import {useSaveNoteBundle} from 'data-store/use-data'
+import {NoteBundle, UnsavedNoteBundle} from 'data-store/data-types'
+import {NotesStore} from 'data-store'
+// import {useSaveNoteBundle} from 'data-store/use-data-store'
 
 interface NoteEntryProps {
   isOpen: boolean
   onFocus: () => any
-  initialNoteBundle?: noteBundle
+  initialNoteBundle?: NoteBundle
   initialNoteIndex: number
   onSaved?: () => any
 }
@@ -28,7 +29,7 @@ export const NoteEntry = ({
   const initialNoteText = initialNoteBundle ? initialNoteBundle.notes[initialNoteIndex].text : ''
   const [noteText, setNoteText] = useState(initialNoteText)
   const noteInputRef = useRef<TextInput>(null)
-  const saveBundle = useSaveNoteBundle()
+  // const saveBundle = useSaveNoteBundle()
 
   useEffect(() => {
     if (isOpen && noteInputRef.current) {
@@ -40,7 +41,7 @@ export const NoteEntry = ({
     if (isOpen) setNoteText(initialNoteText)
   }, [isOpen, initialNoteText])
 
-  const formBundle = (): unsavedNoteBundle => {
+  const formBundle = (): UnsavedNoteBundle => {
     if (initialNoteBundle) {
       const updatedNote = {...initialNoteBundle.notes[initialNoteIndex], text: noteText}
       const updatedNotes = Object.assign([], initialNoteBundle.notes, {
@@ -60,7 +61,8 @@ export const NoteEntry = ({
     if (noteText.length <= 0) return
     const notesBundle = formBundle()
     setNoteText('')
-    await saveBundle(notesBundle)
+    // await saveBundle(notesBundle)
+    NotesStore.save(notesBundle)
     if (onSaved) onSaved()
   }
 

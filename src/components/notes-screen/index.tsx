@@ -1,4 +1,4 @@
-import React, {ReactNode, useState} from 'react'
+import React, {ReactNode, useState, useEffect} from 'react'
 import {
   View,
   Text,
@@ -11,9 +11,11 @@ import {
 import {colors} from 'theme'
 import {Search} from 'components/search'
 import {NoteEntry} from 'components/note-entry'
-import {NoteBundle} from 'components/note-bundle'
-import {useNoteBundles, useSaveNoteBundle} from 'data-store/use-data'
-import {note, noteBundle} from 'data-store/data-types'
+import {NoteBundleListItem} from 'components/note-bundle'
+import {NotesStore} from 'data-store'
+// import {useNoteBundles, useSaveNoteBundle} from 'data-store/use-data-store'
+
+import {NoteBundle} from 'data-store/data-types'
 
 interface ScreenProps {
   children?: ReactNode
@@ -29,12 +31,22 @@ const Screen = ({children}: ScreenProps) => {
 }
 
 const NotesScreen = ({children}: ScreenProps) => {
-  const [noteBundles, refreshData] = useNoteBundles()
-  const saveBundle = useSaveNoteBundle()
+  // const [noteBundles, refreshData] = useNoteBundles()
+  // const saveBundle = useSaveNoteBundle()
+
+  const [noteBundles, setNoteBundles] = useState<NoteBundle[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // const refreshData = () => NotesStore.all().then(setNoteBundles)
+
+  useEffect(() => {
+    NotesStore.all().then(setNoteBundles)
+    setLoading(false)
+  }, [])
 
   const [editMode, setEditMode] = useState(false)
 
-  const [editBundle, setEditBundle] = useState<noteBundle>()
+  const [editBundle, setEditBundle] = useState<NoteBundle>()
   const [editNoteIndex, setEditNoteIndex] = useState<number>()
 
   const minimizeSearch = false
@@ -43,13 +55,13 @@ const NotesScreen = ({children}: ScreenProps) => {
     console.log('search for:', value)
   }
 
-  const onDoneTogglePress = async (noteBundle: noteBundle, noteIndex: number) => {
+  const onDoneTogglePress = async (noteBundle: NoteBundle, noteIndex: number) => {
     noteBundle.notes[noteIndex].checked = !noteBundle.notes[noteIndex].checked
-    await saveBundle(noteBundle)
-    refreshData()
+    await NotesStore.save(noteBundle)
+    // refreshData()
   }
 
-  const onEditPress = (noteBundle: noteBundle, noteIndex: number) => {
+  const onEditPress = (noteBundle: NoteBundle, noteIndex: number) => {
     setEditBundle(noteBundle)
     setEditNoteIndex(noteIndex)
     setEditMode(true)
@@ -59,7 +71,7 @@ const NotesScreen = ({children}: ScreenProps) => {
     setEditBundle(undefined)
     setEditNoteIndex(undefined)
     setEditMode(false)
-    refreshData()
+    // refreshData()
   }
 
   return (
@@ -82,9 +94,9 @@ const NotesScreen = ({children}: ScreenProps) => {
 }
 
 interface NoteBundleListProps {
-  noteBundles: noteBundle[]
-  onDoneTogglePress: (noteBundle: noteBundle, noteIndex: number) => any
-  onEditPress: (noteBundle: noteBundle, noteIndex: number) => any
+  noteBundles: NoteBundle[]
+  onDoneTogglePress: (noteBundle: NoteBundle, noteIndex: number) => any
+  onEditPress: (noteBundle: NoteBundle, noteIndex: number) => any
 }
 
 const NoteBundleList = ({noteBundles, onDoneTogglePress, onEditPress}: NoteBundleListProps) => {
@@ -95,7 +107,7 @@ const NoteBundleList = ({noteBundles, onDoneTogglePress, onEditPress}: NoteBundl
         data={noteBundles}
         extraData={noteBundles.length}
         renderItem={({item}) => (
-          <NoteBundle
+          <NoteBundleListItem
             noteBundle={item}
             onDoneTogglePress={i => onDoneTogglePress(item, i)}
             onEditPress={i => onEditPress(item, i)}

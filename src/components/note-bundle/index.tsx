@@ -1,17 +1,21 @@
 import React from 'react'
 import styled from 'styled-components/native'
 import {colors} from 'theme'
-import {noteBundle, note} from 'data-store/data-types'
+import {NoteBundle, Note} from 'data-store/data-types'
 import {BundleAvatar} from './bundle-avatar'
-import {Note} from './note'
+import {NoteRow} from './note'
 
 interface NoteBundleProps {
-  noteBundle: noteBundle
-  onDoneTogglePress: (noteIndex: number, note: note) => any
-  onEditPress: (noteIndex: number, note: note) => any
+  noteBundle: NoteBundle
+  onDoneTogglePress: (noteIndex: number, note: Note) => any
+  onEditPress: (noteIndex: number, note: Note) => any
 }
 
-export const NoteBundle = ({noteBundle, onDoneTogglePress, onEditPress}: NoteBundleProps) => {
+export const NoteBundleListItem = ({
+  noteBundle,
+  onDoneTogglePress,
+  onEditPress,
+}: NoteBundleProps) => {
   return (
     <NoteBundleContainer>
       <BundleInfo noteBundle={noteBundle} />
@@ -51,7 +55,7 @@ const NotesCol = styled.View`
 `
 
 interface BundleInfoProps {
-  noteBundle: noteBundle
+  noteBundle: NoteBundle
 }
 
 const BundleInfo = ({noteBundle}: BundleInfoProps) => {
@@ -73,16 +77,16 @@ const BundleInfoText = styled.Text`
 `
 
 interface NotesProps {
-  notes: note[]
-  onDoneTogglePress: (noteIndex: number, note: note) => any
-  onEditPress: (noteIndex: number, note: note) => any
+  notes: Note[]
+  onDoneTogglePress: (noteIndex: number, note: Note) => any
+  onEditPress: (noteIndex: number, note: Note) => any
 }
 
 const Notes = ({notes, onDoneTogglePress, onEditPress}: NotesProps) => {
   return (
     <>
       {notes.map((note, i) => (
-        <Note
+        <NoteRow
           key={i || 'new'}
           note={note}
           isFirst={i === 0}

@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components/native'
-import {noteBundle, note} from 'data-store/data-types'
+import {NoteBundle, Note} from 'data-store/data-types'
 import {colors} from 'theme'
 
 export interface BundleAvatarProps {

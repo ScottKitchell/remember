@@ -1,18 +1,18 @@
 import React from 'react'
 import {Text, Vibration} from 'react-native'
 import styled from 'styled-components/native'
-import {note} from 'data-store/data-types'
+import {Note} from 'data-store/data-types'
 import {colors} from 'theme'
 
 interface NoteProps {
-  note: note
+  note: Note
   isFirst: boolean
   isLast: boolean
   onDoneTogglePress: () => any
   onEditPress: () => any
 }
 
-export const Note = ({note, isFirst, isLast, onDoneTogglePress, onEditPress}: NoteProps) => {
+export const NoteRow = ({note, isFirst, isLast, onDoneTogglePress, onEditPress}: NoteProps) => {
   return (
     <NoteContainer>
       <DoneIndicatorContainer>
