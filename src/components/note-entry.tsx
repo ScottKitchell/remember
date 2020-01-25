@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import {
   TextInput,
   TextInputProperties,
@@ -7,9 +7,9 @@ import {
   StyleSheet,
 } from 'react-native'
 import styled from 'styled-components/native'
-import {colors} from 'theme'
-import {NoteBundle, UnsavedNoteBundle} from 'data-store/data-types'
-import {NotesStore} from 'data-store'
+import { colors } from 'theme'
+import { NoteBundle, UnsavedNoteBundle } from 'data-store/data-types'
+import { NotesStore } from 'data-store'
 // import {useSaveNoteBundle} from 'data-store/use-data-store'
 
 interface NoteEntryProps {
@@ -35,22 +35,24 @@ export const NoteEntry = ({
     if (isOpen && noteInputRef.current) {
       noteInputRef.current.focus()
     }
-  }, [isOpen, noteInputRef.current])
+  }, [isOpen])
 
   useEffect(() => {
-    if (isOpen) setNoteText(initialNoteText)
+    if (isOpen) {
+      setNoteText(initialNoteText)
+    }
   }, [isOpen, initialNoteText])
 
   const formBundle = (): UnsavedNoteBundle => {
     if (initialNoteBundle) {
-      const updatedNote = {...initialNoteBundle.notes[initialNoteIndex], text: noteText}
+      const updatedNote = { ...initialNoteBundle.notes[initialNoteIndex], text: noteText }
       const updatedNotes = Object.assign([], initialNoteBundle.notes, {
         [initialNoteIndex]: updatedNote,
       })
-      return {...initialNoteBundle, notes: updatedNotes}
+      return { ...initialNoteBundle, notes: updatedNotes }
     } else {
       return {
-        notes: [{text: noteText, checked: false, createdAt: 'now'}],
+        notes: [{ text: noteText, checked: false, createdAt: 'now' }],
         createdAt: 'now',
         creationType: 'user',
       }
@@ -58,12 +60,16 @@ export const NoteEntry = ({
   }
 
   const save = async () => {
-    if (noteText.length <= 0) return
+    if (noteText.length <= 0) {
+      return
+    }
     const notesBundle = formBundle()
     setNoteText('')
     // await saveBundle(notesBundle)
     NotesStore.save(notesBundle)
-    if (onSaved) onSaved()
+    if (onSaved) {
+      onSaved()
+    }
   }
 
   return (
@@ -103,7 +109,7 @@ const SubmitCol = styled.View`
   justify-content: flex-end;
 `
 
-const NoteInput = styled.TextInput.attrs({placeholder: 'Aa', multiline: true})`
+const NoteInput = styled.TextInput.attrs({ placeholder: 'Aa', multiline: true })`
   background-color: ${colors.bubble};
   border-radius: 22px;
   padding-top: 6px;

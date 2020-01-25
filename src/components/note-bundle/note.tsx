@@ -1,8 +1,8 @@
 import React from 'react'
-import {Text, Vibration} from 'react-native'
+import { Text, Vibration } from 'react-native'
 import styled from 'styled-components/native'
-import {Note} from 'data-store/data-types'
-import {colors} from 'theme'
+import { Note } from 'data-store/data-types'
+import { colors } from 'theme'
 
 interface NoteProps {
   note: Note
@@ -12,31 +12,29 @@ interface NoteProps {
   onEditPress: () => any
 }
 
-export const NoteRow = ({note, isFirst, isLast, onDoneTogglePress, onEditPress}: NoteProps) => {
-  return (
-    <NoteContainer>
-      <DoneIndicatorContainer>
-        <DoneIndicator done={note.checked} />
-      </DoneIndicatorContainer>
+export const NoteRow = ({ note, isFirst, isLast, onDoneTogglePress, onEditPress }: NoteProps) => (
+  <NoteContainer>
+    <DoneIndicatorContainer>
+      <DoneIndicator done={note.checked} />
+    </DoneIndicatorContainer>
 
-      <NoteBubble
-        isFirst={isFirst}
-        isLast={isLast}
-        done={note.checked}
-        onPress={() => {
-          onDoneTogglePress()
-          Vibration.vibrate(50)
-        }}
-        onLongPress={() => {
-          onEditPress()
-          Vibration.vibrate(80)
-        }}
-      >
-        <Text>{note.text}</Text>
-      </NoteBubble>
-    </NoteContainer>
-  )
-}
+    <NoteBubble
+      isFirst={isFirst}
+      isLast={isLast}
+      done={note.checked}
+      onPress={() => {
+        onDoneTogglePress()
+        Vibration.vibrate(50)
+      }}
+      onLongPress={() => {
+        onEditPress()
+        Vibration.vibrate(80)
+      }}
+    >
+      <Text>{note.text}</Text>
+    </NoteBubble>
+  </NoteContainer>
+)
 
 const NoteContainer = styled.View`
   display: flex;
@@ -67,7 +65,8 @@ interface NoteBubbleProps {
   isLast: boolean
   done: boolean
 }
-const NoteBubble = styled.TouchableHighlight.attrs({underlayColor: '#cccccc'})<NoteBubbleProps>`
+
+const NoteBubble = styled.TouchableHighlight.attrs({ underlayColor: '#cccccc' })<NoteBubbleProps>`
   flex: 1;
   background-color: ${props => (props.done ? '#f5f5f5' : '#eeeeee')};
   overflow: hidden;

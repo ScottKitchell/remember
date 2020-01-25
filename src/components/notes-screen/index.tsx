@@ -1,4 +1,4 @@
-import React, {ReactNode, useState, useEffect} from 'react'
+import React, { ReactNode, useState, useEffect } from 'react'
 import {
   View,
   Text,
@@ -8,29 +8,29 @@ import {
   FlatList,
   StyleSheet,
 } from 'react-native'
-import {colors} from 'theme'
-import {Search} from 'components/search'
-import {NoteEntry} from 'components/note-entry'
-import {NoteBundleListItem} from 'components/note-bundle'
-import {NotesStore} from 'data-store'
+import { colors } from 'theme'
+import { Search } from 'components/search'
+import { NoteEntry } from 'components/note-entry'
+import { NoteBundleListItem } from 'components/note-bundle'
+import { NotesStore } from 'data-store'
 // import {useNoteBundles, useSaveNoteBundle} from 'data-store/use-data-store'
 
-import {NoteBundle} from 'data-store/data-types'
+import { NoteBundle } from 'data-store/data-types'
 
 interface ScreenProps {
   children?: ReactNode
 }
 
-const Screen = ({children}: ScreenProps) => {
+const Screen = ({ children }: ScreenProps) => {
   return (
     <>
       <StatusBar backgroundColor={colors.primary} barStyle="light-content" />
-      <SafeAreaView style={{backgroundColor: colors.primary, flex: 1}}>{children}</SafeAreaView>
+      <SafeAreaView style={{ backgroundColor: colors.primary, flex: 1 }}>{children}</SafeAreaView>
     </>
   )
 }
 
-const NotesScreen = ({children}: ScreenProps) => {
+const NotesScreen = ({ children }: ScreenProps) => {
   // const [noteBundles, refreshData] = useNoteBundles()
   // const saveBundle = useSaveNoteBundle()
 
@@ -99,14 +99,14 @@ interface NoteBundleListProps {
   onEditPress: (noteBundle: NoteBundle, noteIndex: number) => any
 }
 
-const NoteBundleList = ({noteBundles, onDoneTogglePress, onEditPress}: NoteBundleListProps) => {
+const NoteBundleList = ({ noteBundles, onDoneTogglePress, onEditPress }: NoteBundleListProps) => {
   return (
     <KeyboardAvoidingView style={styles.notesView}>
       <FlatList
         style={styles.notesList}
         data={noteBundles}
         extraData={noteBundles.length}
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <NoteBundleListItem
             noteBundle={item}
             onDoneTogglePress={i => onDoneTogglePress(item, i)}

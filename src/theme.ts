@@ -10,4 +10,4 @@ export const colors = {
   bubbleLight: '#fafafa',
   textDark: 'rgba(0,0,0,0.9)',
   textLight: 'rgba(255,255,255,0.9)',
-}
+} as const

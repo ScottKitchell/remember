@@ -1,7 +1,7 @@
 import React from 'react'
-import {Text, TextInput} from 'react-native'
+import { Text, TextInput } from 'react-native'
 import PropTypes from 'prop-types'
-import {RichText} from 'components/rich-text/text'
+import { RichText } from 'components/rich-text/text'
 
 const URL_REGEX = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)$/
 
@@ -25,15 +25,20 @@ export class RichTextInput extends React.Component {
   }
 
   clear = () => {
-    if (this.props.onChangeText) this._handleChangeText('')
-    else this.textInputRef.current.clear()
+    if (this.props.onChangeText) {
+      this._handleChangeText('')
+    } else {
+      this.textInputRef.current.clear()
+    }
   }
 
   isFocused = () => this.textInputRef.current.isFocused()
 
   insertAtCursor = (chars, startIndex = this.state.cursor, endIndex = this.state.cursor) => {
     // console.log(`insertAtCursor - "${chars}" at ${startIndex}-${endIndex}`);
-    if (!this.props.onChangeText) return
+    if (!this.props.onChangeText) {
+      return
+    }
     const text = this.props.value
       .slice(0, startIndex)
       .concat(chars, this.props.value.slice(endIndex))
@@ -50,13 +55,17 @@ export class RichTextInput extends React.Component {
   _handleChangeText = (text, cursor = this.state.cursor) => {
     // console.log(`onChangeText - cursor was at ${cursor}`);
     this._checkForKeyWords(text, cursor)
-    if (this.props.onChangeText) this.props.onChangeText(text)
+    if (this.props.onChangeText) {
+      this.props.onChangeText(text)
+    }
   }
 
   _handleChangeSelection = event => {
     // console.log(`onChangeCursor - from ${this.state.cursor} to ${event.nativeEvent.selection.start}`);
-    this.setState({cursor: event.nativeEvent.selection.start})
-    if (this.props.onSelectionChange) this.props.onSelectionChange(event)
+    this.setState({ cursor: event.nativeEvent.selection.start })
+    if (this.props.onSelectionChange) {
+      this.props.onSelectionChange(event)
+    }
   }
 
   _checkForKeyWords = (text, cursor = this.state.cursor) => {
@@ -66,19 +75,23 @@ export class RichTextInput extends React.Component {
         const tag = text.slice(wordStartIndex + 1, cursor + 1)
         // console.log(`onHashtagEntering - "#${tag}"`);
         this.props.onHashtagEntering(tag)
-      } else this.props.onHashtagEntering(null)
+      } else {
+        this.props.onHashtagEntering(null)
+      }
     }
   }
 
   _getWordStartIndex = (text, cursor) => {
     for (let i = cursor; i >= 0; i--) {
-      if (text[i] === ' ') return i + 1
+      if (text[i] === ' ') {
+        return i + 1
+      }
     }
     return 0
   }
 
   render() {
-    const {value, onHashtagEntering, hashtagStyle, urlStyle, ...props} = this.props
+    const { value, onHashtagEntering, hashtagStyle, urlStyle, ...props } = this.props
     return (
       <TextInput
         ref={this.textInputRef}

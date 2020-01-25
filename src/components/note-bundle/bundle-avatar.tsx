@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components/native'
-import {NoteBundle, Note} from 'data-store/data-types'
-import {colors} from 'theme'
+import { NoteBundle, Note } from 'data-store/data-types'
+import { colors } from 'theme'
 
 export interface BundleAvatarProps {
   creationType: 'user' | 'reminder'

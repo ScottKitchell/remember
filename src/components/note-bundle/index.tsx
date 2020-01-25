@@ -1,9 +1,8 @@
 import React from 'react'
 import styled from 'styled-components/native'
-import {colors} from 'theme'
-import {NoteBundle, Note} from 'data-store/data-types'
-import {BundleAvatar} from './bundle-avatar'
-import {NoteRow} from './note'
+import { NoteBundle, Note } from 'data-store/data-types'
+import { BundleAvatar } from './bundle-avatar'
+import { NoteRow } from './note'
 
 interface NoteBundleProps {
   noteBundle: NoteBundle
@@ -58,7 +57,7 @@ interface BundleInfoProps {
   noteBundle: NoteBundle
 }
 
-const BundleInfo = ({noteBundle}: BundleInfoProps) => {
+const BundleInfo = ({ noteBundle }: BundleInfoProps) => {
   return (
     <BundleInfoContainer>
       <BundleInfoText>{noteBundle.createdAt}</BundleInfoText>
@@ -82,7 +81,7 @@ interface NotesProps {
   onEditPress: (noteIndex: number, note: Note) => any
 }
 
-const Notes = ({notes, onDoneTogglePress, onEditPress}: NotesProps) => {
+const Notes = ({ notes, onDoneTogglePress, onEditPress }: NotesProps) => {
   return (
     <>
       {notes.map((note, i) => (
