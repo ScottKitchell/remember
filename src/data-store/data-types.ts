@@ -1,19 +1,19 @@
-export interface note {
+export interface Data {
+  id: number
+}
+
+export interface Note {
   text: string
   checked: boolean
   createdAt: string
 }
 
-interface _noteBundle {
-  notes: note[]
+export interface NoteBundle extends Data {
+  notes: Note[]
   createdAt: string
   creationType: 'user' | 'reminder'
 }
 
-export interface noteBundle extends _noteBundle {
-  id: number
-}
-
-export interface unsavedNoteBundle extends _noteBundle {
-  id?: number | null
+export interface UnsavedNoteBundle extends Omit<NoteBundle, 'id'> {
+  id?: number
 }
