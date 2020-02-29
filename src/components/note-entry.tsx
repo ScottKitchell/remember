@@ -6,6 +6,7 @@ import {
   TextInputContentSizeChangeEventData,
   StyleSheet,
 } from 'react-native'
+import RichTextInput from 'components/rich-text/text-input'
 import styled from 'styled-components/native'
 import { colors } from 'theme'
 import { NoteBundle, UnsavedNoteBundle } from 'data-store/data-types'
@@ -28,19 +29,15 @@ export const NoteEntry = ({
 }: NoteEntryProps) => {
   const initialNoteText = initialNoteBundle ? initialNoteBundle.notes[initialNoteIndex].text : ''
   const [noteText, setNoteText] = useState(initialNoteText)
-  const noteInputRef = useRef<TextInput>(null)
+  const noteInputRef = useRef<RichTextInput>(null)
   // const saveBundle = useSaveNoteBundle()
 
   useEffect(() => {
-    if (isOpen && noteInputRef.current) {
-      noteInputRef.current.focus()
-    }
+    if (isOpen && noteInputRef.current) noteInputRef.current.focus()
   }, [isOpen])
 
   useEffect(() => {
-    if (isOpen) {
-      setNoteText(initialNoteText)
-    }
+    if (isOpen) setNoteText(initialNoteText)
   }, [isOpen, initialNoteText])
 
   const formBundle = (): UnsavedNoteBundle => {
@@ -60,22 +57,24 @@ export const NoteEntry = ({
   }
 
   const save = async () => {
-    if (noteText.length <= 0) {
-      return
-    }
+    if (noteText.length <= 0) return
+
     const notesBundle = formBundle()
     setNoteText('')
     // await saveBundle(notesBundle)
     NotesStore.save(notesBundle)
-    if (onSaved) {
-      onSaved()
-    }
+    if (onSaved) onSaved()
   }
 
   return (
     <NoteEntryContainer>
       <InputCol>
-        <NoteInput ref={noteInputRef} onChangeText={setNoteText} value={noteText} />
+        <NoteInput
+          ref={noteInputRef}
+          onChangeText={setNoteText}
+          value={noteText}
+          hashtagStyle={{ color: colors.primary }}
+        />
       </InputCol>
       <SubmitCol>
         <SubmitButton>
@@ -109,7 +108,7 @@ const SubmitCol = styled.View`
   justify-content: flex-end;
 `
 
-const NoteInput = styled.TextInput.attrs({ placeholder: 'Aa', multiline: true })`
+const NoteInput = styled(RichTextInput).attrs({ placeholder: 'Aa', multiline: true })`
   background-color: ${colors.bubble};
   border-radius: 22px;
   padding-top: 6px;

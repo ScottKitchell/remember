@@ -1,8 +1,9 @@
 import React from 'react'
-import { Text, Vibration } from 'react-native'
+import { Vibration } from 'react-native'
 import styled from 'styled-components/native'
 import { Note } from 'data-store/data-types'
 import { colors } from 'theme'
+import RichText from 'components/rich-text/text'
 
 interface NoteProps {
   note: Note
@@ -31,16 +32,18 @@ export const NoteRow = ({ note, isFirst, isLast, onDoneTogglePress, onEditPress 
         Vibration.vibrate(80)
       }}
     >
-      <Text>{note.text}</Text>
+      <RichText hashtagStyle={{ color: colors.primary }}>{note.text}</RichText>
     </NoteBubble>
   </NoteContainer>
 )
 
 const NoteContainer = styled.View`
+  flex: 1;
   display: flex;
   flex-direction: row;
   align-items: center;
   align-content: center;
+  justify-content: flex-end;
 `
 
 const DoneIndicatorContainer = styled.View`
@@ -57,7 +60,7 @@ const DoneIndicator = styled.View<DoneIndicatorProps>`
   height: 20px;
   width: 20px;
   border-radius: 10px;
-  background-color: ${props => (props.done ? colors.primaryLight : '#f7f7f7')};
+  background-color: ${props => (props.done ? colors.primary : '#f7f7f7')};
 `
 
 interface NoteBubbleProps {
@@ -67,7 +70,6 @@ interface NoteBubbleProps {
 }
 
 const NoteBubble = styled.TouchableHighlight.attrs({ underlayColor: '#cccccc' })<NoteBubbleProps>`
-  flex: 1;
   background-color: ${props => (props.done ? '#f5f5f5' : '#eeeeee')};
   overflow: hidden;
   padding-top: 10px;

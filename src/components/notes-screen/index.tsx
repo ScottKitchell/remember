@@ -37,11 +37,18 @@ const NotesScreen = ({ children }: ScreenProps) => {
   const [noteBundles, setNoteBundles] = useState<NoteBundle[]>([])
   const [loading, setLoading] = useState(true)
 
-  // const refreshData = () => NotesStore.all().then(setNoteBundles)
+  const refreshData = async () => {
+    console.log('refreshData')
+    const notesData = await NotesStore.all()
+    setNoteBundles(notesData.reverse())
+    setLoading(false)
+  }
 
   useEffect(() => {
-    NotesStore.all().then(setNoteBundles)
-    setLoading(false)
+    refreshData()
+    console.log('set listener')
+    NotesStore.addChangeListener(refreshData)
+    return () => NotesStore.removeChangeListener(refreshData)
   }, [])
 
   const [editMode, setEditMode] = useState(false)
