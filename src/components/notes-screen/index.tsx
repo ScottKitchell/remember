@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from 'react-native'
 import { colors } from 'theme'
-import { Search } from 'components/search'
+import { Controls } from 'components/controls'
 import { NoteEntry } from 'components/note-entry'
 import { NoteBundleListItem } from 'components/note-bundle'
 import { NotesStore } from 'data-store'
@@ -83,7 +83,7 @@ const NotesScreen = ({ children }: ScreenProps) => {
 
   return (
     <Screen>
-      <Search onSearchChange={search} minimize={minimizeSearch} />
+      <Controls onSearchChange={search} minimize={minimizeSearch} />
       <NoteBundleList
         noteBundles={noteBundles}
         onDoneTogglePress={onDoneTogglePress}

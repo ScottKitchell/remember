@@ -4,6 +4,7 @@ import styled from 'styled-components/native'
 import { Note } from 'data-store/data-types'
 import { colors } from 'theme'
 import RichText from 'components/rich-text/text'
+import Icon from 'react-native-vector-icons/Feather'
 
 interface NoteProps {
   note: Note
@@ -13,42 +14,45 @@ interface NoteProps {
   onEditPress: () => any
 }
 
-export const NoteRow = ({ note, isFirst, isLast, onDoneTogglePress, onEditPress }: NoteProps) => (
-  <NoteContainer>
-    <DoneIndicatorContainer>
-      <DoneIndicator done={note.checked} />
-    </DoneIndicatorContainer>
+export const NoteRow = ({ note, isFirst, isLast, onDoneTogglePress, onEditPress }: NoteProps) => {
+  const toggleChecked = () => {
+    onDoneTogglePress()
+    Vibration.vibrate(50)
+  }
 
-    <NoteBubble
-      isFirst={isFirst}
-      isLast={isLast}
-      done={note.checked}
-      onPress={() => {
-        onDoneTogglePress()
-        Vibration.vibrate(50)
-      }}
-      onLongPress={() => {
-        onEditPress()
-        Vibration.vibrate(80)
-      }}
-    >
-      <RichText hashtagStyle={{ color: colors.primary }}>{note.text}</RichText>
-    </NoteBubble>
-  </NoteContainer>
-)
+  const edit = () => {
+    onEditPress()
+    Vibration.vibrate(80)
+  }
+
+  return (
+    <NoteContainer>
+      <DoneIndicatorContainer onPress={toggleChecked}>
+        <DoneIndicator done={note.checked} />
+      </DoneIndicatorContainer>
+
+      <NoteBubble
+        isFirst={isFirst}
+        isLast={isLast}
+        done={note.checked}
+        onPress={toggleChecked}
+        onLongPress={edit}
+      >
+        <RichText hashtagStyle={{ color: colors.primary }}>{note.text}</RichText>
+      </NoteBubble>
+    </NoteContainer>
+  )
+}
 
 const NoteContainer = styled.View`
-  flex: 1;
   display: flex;
   flex-direction: row;
   align-items: center;
-  align-content: center;
   justify-content: flex-end;
 `
 
-const DoneIndicatorContainer = styled.View`
-  flex-grow: 0;
-  width: 48px;
+const DoneIndicatorContainer = styled.TouchableOpacity`
+  flex: 48px 0 0;
   align-items: center;
   align-content: center;
 `
@@ -56,11 +60,11 @@ const DoneIndicatorContainer = styled.View`
 interface DoneIndicatorProps {
   done: boolean
 }
-const DoneIndicator = styled.View<DoneIndicatorProps>`
+const DoneIndicator = styled(Icon).attrs({ name: 'check' })<DoneIndicatorProps>`
   height: 20px;
   width: 20px;
-  border-radius: 10px;
-  background-color: ${props => (props.done ? colors.primary : '#f7f7f7')};
+  font-size: 20px;
+  color: ${props => (props.done ? colors.primary : '#f7f7f7')};
 `
 
 interface NoteBubbleProps {
@@ -69,13 +73,14 @@ interface NoteBubbleProps {
   done: boolean
 }
 
-const NoteBubble = styled.TouchableHighlight.attrs({ underlayColor: '#cccccc' })<NoteBubbleProps>`
+const NoteBubble = styled.TouchableOpacity<NoteBubbleProps>`
+  flex: 0 1 auto;
   background-color: ${props => (props.done ? '#f5f5f5' : '#eeeeee')};
   overflow: hidden;
-  padding-top: 10px;
-  padding-right: 15px;
-  padding-bottom: 10px;
-  padding-left: 15px;
+  padding-top: 8px;
+  padding-right: 16px;
+  padding-bottom: 8px;
+  padding-left: 16px;
   border-bottom-color: #e9e9e9;
   border-bottom-width: ${props => (props.isLast ? 0 : 1)}px;
   border-top-left-radius: ${props => (props.isFirst ? 20 : 0)}px;

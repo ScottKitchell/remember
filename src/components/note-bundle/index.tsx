@@ -25,11 +25,16 @@ export const NoteBundleListItem = ({
         </AvatarCol>
 
         <NotesCol>
-          <Notes
-            notes={noteBundle.notes}
-            onDoneTogglePress={onDoneTogglePress}
-            onEditPress={onEditPress}
-          />
+          {noteBundle.notes.map((note, i) => (
+            <NoteRow
+              key={i || 'new'}
+              note={note}
+              isFirst={i === 0}
+              isLast={i === noteBundle.notes.length - 1}
+              onDoneTogglePress={() => onDoneTogglePress(i, note)}
+              onEditPress={() => onEditPress(i, note)}
+            />
+          ))}
         </NotesCol>
       </BundleDetailsContainer>
     </NoteBundleContainer>
@@ -37,7 +42,7 @@ export const NoteBundleListItem = ({
 }
 
 const NoteBundleContainer = styled.View`
-  padding: 15px;
+  padding: 5px 15px;
 `
 
 const BundleDetailsContainer = styled.View`
@@ -47,6 +52,7 @@ const BundleDetailsContainer = styled.View`
 
 const AvatarCol = styled.View`
   flex-grow: 0;
+  flex-shrink: 0;
 `
 
 const NotesCol = styled.View`
@@ -74,26 +80,3 @@ const BundleInfoText = styled.Text`
   text-align: center;
   font-size: 12px;
 `
-
-interface NotesProps {
-  notes: Note[]
-  onDoneTogglePress: (noteIndex: number, note: Note) => any
-  onEditPress: (noteIndex: number, note: Note) => any
-}
-
-const Notes = ({ notes, onDoneTogglePress, onEditPress }: NotesProps) => {
-  return (
-    <>
-      {notes.map((note, i) => (
-        <NoteRow
-          key={i || 'new'}
-          note={note}
-          isFirst={i === 0}
-          isLast={i === notes.length - 1}
-          onDoneTogglePress={() => onDoneTogglePress(i, note)}
-          onEditPress={() => onEditPress(i, note)}
-        />
-      ))}
-    </>
-  )
-}
