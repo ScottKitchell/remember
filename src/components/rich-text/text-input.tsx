@@ -1,6 +1,5 @@
 import React, { Component, RefObject } from 'react'
 import {
-  Text,
   TextInput,
   TextInputProps,
   NativeSyntheticEvent,
@@ -10,14 +9,10 @@ import {
 } from 'react-native'
 import RichText from './text'
 
-// const URL_REGEX = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)$/
-
 type RichTextInputProps = {
   onHashtagEntering?: (tag: string) => any
   hashtagStyle?: StyleProp<TextStyle>
-  hashtagClassName?: string
   urlStyle?: StyleProp<TextStyle>
-  urlClassName?: string
 } & TextInputProps
 
 type RichTextInputState = {
@@ -33,9 +28,7 @@ export default class RichTextInput extends Component<RichTextInputProps, RichTex
 
   constructor(props: RichTextInputProps) {
     super(props)
-    this.state = {
-      cursor: 0,
-    }
+    this.state = { cursor: -1 }
     this.textInputRef = React.createRef()
   }
 
@@ -44,12 +37,14 @@ export default class RichTextInput extends Component<RichTextInputProps, RichTex
     return nextState.cursor === this.state.cursor && nextProps.value !== this.props.value
   }
 
+  isFocused = () => this.textInputRef.current && this.textInputRef.current.isFocused()
+
+  focus = () => this.textInputRef.current && this.textInputRef.current.focus()
+
   clear = () => {
     if (this.props.onChangeText) this._handleChangeText('')
     else if (this.textInputRef.current) this.textInputRef.current.clear()
   }
-
-  isFocused = () => this.textInputRef.current && this.textInputRef.current.isFocused()
 
   insertAtCursor = (
     chars: string,
@@ -61,14 +56,15 @@ export default class RichTextInput extends Component<RichTextInputProps, RichTex
 
     const text = this.props.value
       ? this.props.value.slice(0, startIndex).concat(chars, this.props.value.slice(endIndex))
-      : ''
+      : chars
+
     const cursorNowAt = startIndex + chars.length
     this._handleChangeText(text, cursorNowAt)
   }
 
   autoCompleteWord = (chars: string) => {
     const cursor = this.state.cursor
-    const fromIndex = this._getWordStartIndex(this.props.value || '', cursor)
+    const fromIndex = this._getWordStartIndex(this.props.value ?? '', cursor)
     this.insertAtCursor(chars + ' ', fromIndex, cursor)
   }
 
@@ -79,7 +75,6 @@ export default class RichTextInput extends Component<RichTextInputProps, RichTex
   }
 
   _handleChangeSelection = (event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
-    // console.log(`onChangeCursor - from ${this.state.cursor} to ${event.nativeEvent.selection.start}`);
     this.setState({ cursor: event.nativeEvent.selection.start })
     if (this.props.onSelectionChange) this.props.onSelectionChange(event)
   }
@@ -105,17 +100,18 @@ export default class RichTextInput extends Component<RichTextInputProps, RichTex
       hashtagClassName,
       urlStyle,
       urlClassName,
-      ...props
+      ...textInputProps
     } = this.props
+
     return (
       <TextInput
         ref={this.textInputRef}
-        {...props}
+        {...textInputProps}
         onChangeText={this._handleChangeText}
         onSelectionChange={this._handleChangeSelection}
       >
         <RichText hashtagStyle={hashtagStyle} urlStyle={urlStyle} shortUrl={false}>
-          {value || ''}
+          {value ?? '' }
         </RichText>
       </TextInput>
     )
