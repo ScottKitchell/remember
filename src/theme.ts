@@ -1,13 +1,19 @@
 export const colors = {
-  primaryDark: '#8e44ad',
-  primary: '#9b59b6',
-  primaryLight: '#a569bd',
-  secondary: '#DAF7A6',
+  primaryDark: '#00BBD1',
+  primary: '#00E0EA',
+  secondary: '#96A1A8',
   highlight: '#FFC300',
   error: '#FF5733',
-  background: '#FCFCFC',
+  background: '#FCF8F6',
   bubble: '#f0f0f0',
   bubbleLight: '#fafafa',
   textDark: 'rgba(0,0,0,0.9)',
   textLight: 'rgba(255,255,255,0.9)',
+} as const
+
+export const text = {
+  font: 'inherit',
+  sizeStandard: '14rem',
+  sizeLarge: '18rem',
+  iconSize: '22rem',
 } as const

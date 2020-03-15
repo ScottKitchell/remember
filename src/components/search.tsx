@@ -1,25 +1,34 @@
-import React, { ReactNode, useState } from 'react'
+import React, { createContext, useContext, ReactNode, useState } from 'react'
 import { View, Text, TextInput, StyleSheet } from 'react-native'
 import { colors } from 'theme'
 import styled from 'styled-components/native'
 import Icon from 'react-native-vector-icons/Feather'
+
+type SearchContextType = [string, React.Dispatch<React.SetStateAction<string>>]
+
+const SearchStateContext = createContext<SearchContextType>(['', () => null])
+
+export const SearchStateProvider = (props: { children: ReactNode }) => {
+  const searchState = useState('')
+
+  return (
+    <SearchStateContext.Provider value={searchState}>{props.children}</SearchStateContext.Provider>
+  )
+}
+
+export const useSearchState = () => useContext(SearchStateContext)
 
 interface SearchProps {
   onChangeText: (value: string) => void
 }
 
 export const SearchBar = ({ onChangeText }: SearchProps) => {
-  // const [searchValue, setSearchValue] = useState('')
-
-  // const handleChange = (value: string) => {
-  //   setSearchValue(value)
-  //   onSearchChange({value})
-  // }
+  const [searchValue, setSearchValue] = useSearchState()
 
   return (
     <SearchContainer>
       <SearchIcon />
-      <SearchInput onChangeText={onChangeText} />
+      <SearchInput onChangeText={setSearchValue} value={searchValue} />
     </SearchContainer>
   )
 }
