@@ -10,36 +10,30 @@ interface NoteBundleProps {
   onEditPress: (noteIndex: number, note: Note) => any
 }
 
-export const NoteBundleListItem = ({
-  noteBundle,
-  onDoneTogglePress,
-  onEditPress,
-}: NoteBundleProps) => {
-  return (
-    <NoteBundleContainer>
-      <BundleInfo noteBundle={noteBundle} />
+export const NoteBundleListItem = (props: NoteBundleProps) => (
+  <NoteBundleContainer>
+    <BundleInfo noteBundle={props.noteBundle} />
 
-      <BundleDetailsContainer>
-        <AvatarCol>
-          <BundleAvatar creationType={noteBundle.creationType} />
-        </AvatarCol>
+    <BundleDetailsContainer>
+      <AvatarCol>
+        <BundleAvatar creationType={props.noteBundle.creationType} />
+      </AvatarCol>
 
-        <NotesCol>
-          {noteBundle.notes.map((note, i) => (
-            <NoteRow
-              key={i || 'new'}
-              note={note}
-              isFirst={i === 0}
-              isLast={i === noteBundle.notes.length - 1}
-              onDoneTogglePress={() => onDoneTogglePress(i, note)}
-              onEditPress={() => onEditPress(i, note)}
-            />
-          ))}
-        </NotesCol>
-      </BundleDetailsContainer>
-    </NoteBundleContainer>
-  )
-}
+      <NotesCol>
+        {props.noteBundle.notes.map((note, i) => (
+          <NoteRow
+            key={i}
+            note={note}
+            isFirst={i === 0}
+            isLast={i === props.noteBundle.notes.length - 1}
+            onDoneTogglePress={() => props.onDoneTogglePress(i, note)}
+            onEditPress={() => props.onEditPress(i, note)}
+          />
+        ))}
+      </NotesCol>
+    </BundleDetailsContainer>
+  </NoteBundleContainer>
+)
 
 const NoteBundleContainer = styled.View`
   padding: 5px 15px;
@@ -63,13 +57,11 @@ interface BundleInfoProps {
   noteBundle: NoteBundle
 }
 
-const BundleInfo = ({ noteBundle }: BundleInfoProps) => {
-  return (
-    <BundleInfoContainer>
-      <BundleInfoText>{noteBundle.createdAt}</BundleInfoText>
-    </BundleInfoContainer>
-  )
-}
+const BundleInfo = (props: BundleInfoProps) => (
+  <BundleInfoContainer>
+    <BundleInfoText>{props.noteBundle.createdAt}</BundleInfoText>
+  </BundleInfoContainer>
+)
 
 const BundleInfoContainer = styled.View`
   align-items: center;
@@ -78,5 +70,5 @@ const BundleInfoContainer = styled.View`
 const BundleInfoText = styled.Text`
   color: #aaa;
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
 `

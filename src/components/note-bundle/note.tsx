@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Vibration } from 'react-native'
 import styled from 'styled-components/native'
 import { Note } from 'data-store/data-types'
@@ -13,16 +13,15 @@ interface NoteProps {
   onDoneTogglePress: () => any
   onEditPress: () => any
 }
-
 export const NoteRow = ({ note, isFirst, isLast, onDoneTogglePress, onEditPress }: NoteProps) => {
   const toggleChecked = () => {
     onDoneTogglePress()
-    Vibration.vibrate(50)
+    Vibration.vibrate(30)
   }
 
   const edit = () => {
     onEditPress()
-    Vibration.vibrate(80)
+    Vibration.vibrate(60)
   }
 
   return (
@@ -38,7 +37,7 @@ export const NoteRow = ({ note, isFirst, isLast, onDoneTogglePress, onEditPress 
         onPress={toggleChecked}
         onLongPress={edit}
       >
-        <RichText hashtagStyle={{ color: colors.primary }}>{note.text}</RichText>
+        <RichText hashtagStyle={{ color: colors.primaryDark }}>{note.text}</RichText>
       </NoteBubble>
     </NoteContainer>
   )
@@ -73,9 +72,11 @@ interface NoteBubbleProps {
   done: boolean
 }
 
-const NoteBubble = styled.TouchableOpacity<NoteBubbleProps>`
+const NoteBubble = styled.TouchableHighlight.attrs({ underlayColor: colors.bubbleLight })<
+  NoteBubbleProps
+>`
   flex: 0 1 auto;
-  background-color: ${props => (props.done ? '#f5f5f5' : '#eeeeee')};
+  background-color: ${props => (props.done ? colors.bubbleLight : colors.bubble)};
   overflow: hidden;
   padding-top: 8px;
   padding-right: 16px;

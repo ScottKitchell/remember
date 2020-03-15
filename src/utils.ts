@@ -1,4 +1,4 @@
-import {useEffect, EffectCallback} from 'react'
+import { useEffect, EffectCallback } from 'react'
 
 /**
  * Accepts a function that contains imperative, possibly effectful code. This function will only

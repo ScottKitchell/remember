@@ -1,5 +1,5 @@
 import AtomicStorage from './atomic-storage'
-import {NoteBundle, UnsavedNoteBundle, Data} from './data-types'
+import { NoteBundle } from './data-types'
 
 /**
  * Retrieve and save NoteBundles.

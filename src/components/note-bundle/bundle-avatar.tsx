@@ -7,9 +7,9 @@ export interface BundleAvatarProps {
   creationType: 'user' | 'reminder'
 }
 
-export const BundleAvatar = ({ creationType }: BundleAvatarProps) => (
-  <BundleAvatarCircle creationType={creationType}>
-    <AvatarIcon name={creationType === 'user' ? 'user' : 'bell'} />
+export const BundleAvatar = (props: BundleAvatarProps) => (
+  <BundleAvatarCircle creationType={props.creationType}>
+    <AvatarIcon name={props.creationType === 'user' ? 'user' : 'bell'} />
   </BundleAvatarCircle>
 )
 
