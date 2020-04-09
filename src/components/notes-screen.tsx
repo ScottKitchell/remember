@@ -9,6 +9,7 @@ import Screen from 'components/screen'
 import { NotesStore } from 'data-store'
 import { NoteBundle } from 'data-store/data-types'
 import { SearchStateProvider } from 'components/search'
+import dayjs from 'dayjs'
 
 function NotesScreen() {
   const [noteBundles, setNoteBundles] = useState<NoteBundle[]>([])
@@ -47,9 +48,10 @@ function NotesScreen() {
   const minimizeSearch = false
 
   const onDoneTogglePress = async (noteBundle: NoteBundle, noteIndex: number) => {
-    noteBundle.notes[noteIndex].checked = !noteBundle.notes[noteIndex].checked
+    noteBundle.notes[noteIndex].checkedAt = !noteBundle.notes[noteIndex].checkedAt
+      ? dayjs().toISOString()
+      : null
     await NotesStore.save(noteBundle)
-    // refreshData()
   }
 
   const onEditPress = (noteBundle: NoteBundle, noteIndex: number) => {

@@ -1,14 +1,12 @@
-export interface Data {
-  id: number
-}
-
 export interface Note {
   text: string
-  checked: boolean
   createdAt: string
+  modifiedAt: string
+  checkedAt: string | null
 }
 
-export interface NoteBundle extends Data {
+export interface NoteBundle {
+  id: number
   notes: Note[]
   createdAt: string
   creationType: 'user' | 'reminder'

@@ -42,16 +42,18 @@ export const NoteEntry = ({
   }, [isOpen, initialNoteText])
 
   const formBundle = (): UnsavedNoteBundle => {
+    const now = dayjs().toISOString()
+
     if (initialNoteBundle) {
-      const updatedNote = { ...initialNoteBundle.notes[initialNoteIndex], text: noteText }
+      const updatedNote = { ...initialNoteBundle.notes[initialNoteIndex], text: noteText, modifiedAt: now }
       const updatedNotes = Object.assign([], initialNoteBundle.notes, {
         [initialNoteIndex]: updatedNote,
       })
       return { ...initialNoteBundle, notes: updatedNotes }
     } else {
       return {
-        notes: [{ text: noteText, checked: false, createdAt: 'now' }],
-        createdAt: dayjs().toISOString(),
+        notes: [{ text: noteText, checkedAt: null, createdAt: now, modifiedAt: now }],
+        createdAt: now,
         creationType: 'user',
       }
     }

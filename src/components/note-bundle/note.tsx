@@ -40,13 +40,13 @@ export const NoteRow = ({
   return (
     <NoteContainer>
       <DoneIndicatorContainer onPress={toggleChecked}>
-        <DoneIndicator done={note.checked} />
+        <DoneIndicator done={!!note.checkedAt} />
       </DoneIndicatorContainer>
 
       <NoteBubble
         isFirst={isFirst}
         isLast={isLast}
-        done={note.checked}
+        done={!!note.checkedAt}
         onPress={toggleChecked}
         onLongPress={edit}
       >
