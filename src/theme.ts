@@ -8,7 +8,9 @@ export const colors = {
   bubble: '#f0f0f0',
   bubbleLight: '#fafafa',
   textDark: 'rgba(0,0,0,0.9)',
+  textDarkFaint: 'rgba(0,0,0,0.2)',
   textLight: 'rgba(255,255,255,0.9)',
+  textLightFaint: 'rgba(255,255,255,0.2)',
 } as const
 
 export const text = {

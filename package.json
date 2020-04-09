@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.8.1",
+    "dayjs": "^1.8.23",
     "react": "16.9.0",
     "react-native": "0.61.5",
     "react-native-vector-icons": "^6.6.0",

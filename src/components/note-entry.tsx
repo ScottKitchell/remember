@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, ComponentProps, ReactNode } from 'react'
+import dayjs from 'dayjs'
 import RichTextInput from 'components/rich-text/text-input'
 import styled, { css } from 'styled-components/native'
 import { colors } from 'theme'
@@ -50,7 +51,7 @@ export const NoteEntry = ({
     } else {
       return {
         notes: [{ text: noteText, checked: false, createdAt: 'now' }],
-        createdAt: 'now',
+        createdAt: dayjs().toISOString(),
         creationType: 'user',
       }
     }

@@ -3,6 +3,11 @@ import styled from 'styled-components/native'
 import { NoteBundle, Note } from 'data-store/data-types'
 import { BundleAvatar } from './bundle-avatar'
 import { NoteRow } from './note'
+import dayjs from 'dayjs'
+import calendar from 'dayjs/plugin/calendar'
+import { colors } from 'theme'
+
+dayjs.extend(calendar)
 
 interface NoteBundleProps {
   noteBundle: NoteBundle
@@ -13,7 +18,7 @@ interface NoteBundleProps {
 
 export const NoteBundleListItem = (props: NoteBundleProps) => (
   <NoteBundleContainer>
-    {/* <BundleInfo noteBundle={props.noteBundle} /> */}
+    <BundleInfo noteBundle={props.noteBundle} />
 
     <BundleDetailsContainer>
       <AvatarCol>
@@ -62,18 +67,21 @@ interface BundleInfoProps {
   noteBundle: NoteBundle
 }
 
-const BundleInfo = (props: BundleInfoProps) => (
-  <BundleInfoContainer>
-    <BundleInfoText>{props.noteBundle.createdAt}</BundleInfoText>
-  </BundleInfoContainer>
-)
+const BundleInfo = (props: BundleInfoProps) => {
+  const createdAt = dayjs(props.noteBundle.createdAt).calendar()
+
+  return (
+    <BundleInfoContainer>
+      <BundleInfoText>{createdAt}</BundleInfoText>
+    </BundleInfoContainer>
+  )
+}
 
 const BundleInfoContainer = styled.View`
   align-items: center;
-  padding: 8px;
+  padding: 4px 8px;
 `
 const BundleInfoText = styled.Text`
-  color: #aaa;
-  text-align: center;
-  font-size: 14px;
+  color: ${colors.textDarkFaint};
+  font-size: 12px;
 `
