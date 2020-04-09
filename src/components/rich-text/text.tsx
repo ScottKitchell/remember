@@ -1,4 +1,4 @@
-import React, { useCallback, memo } from 'react'
+import React, { useCallback, memo, useMemo } from 'react'
 import { Text, TextProps, StyleProp, TextStyle } from 'react-native'
 
 const URL_REGEX = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)$/
@@ -6,8 +6,8 @@ const URL_REGEX = /^(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]
 type ElementString = (string | Element)[]
 
 type RichTextProps = TextProps & {
-  onHashtagPress: (word: string) => void
-  onUrlPress: (word: string) => void
+  onHashtagPress?: (word: string) => void
+  onUrlPress?: (word: string) => void
   hashtagStyle?: StyleProp<TextStyle>
   urlStyle?: StyleProp<TextStyle>
   shortUrl?: boolean
@@ -33,11 +33,11 @@ function RichText({
       lineText.split(' ').reduce((textArray: ElementString, word: string, index: number) => {
         const richWord =
           word[0] === '#' ? (
-            <Text onPress={() => onHashtagPress(word)} key={index} style={hashtagStyle}>
+            <Text onPress={() => onHashtagPress?.(word)} key={index} style={hashtagStyle}>
               {word}
             </Text>
           ) : word.match(URL_REGEX) ? (
-            <Text onPress={() => onUrlPress(word)} key={index} style={urlStyle}>
+            <Text onPress={() => onUrlPress?.(word)} key={index} style={urlStyle}>
               {shortUrl ? shortenUrl(word) : word}
             </Text>
           ) : (
@@ -48,12 +48,14 @@ function RichText({
     [hashtagStyle, onHashtagPress, onUrlPress, shortUrl, shortenUrl, urlStyle],
   )
 
-  const richText = children
-    .split('\n')
-    .reduce((textArray: ElementString, line: string, lineIndex: number) => {
-      const nextLine = formatLine(line)
-      return textArray.concat(lineIndex ? ['\n', nextLine] : [nextLine])
-    }, [])
+  const richText = useMemo(
+    () =>
+      children.split('\n').reduce((textArray: ElementString, line: string, lineIndex: number) => {
+        const nextLine = formatLine(line)
+        return textArray.concat(lineIndex ? ['\n', nextLine] : [nextLine])
+      }, []),
+    [children, formatLine],
+  )
 
   return <Text {...textProps}>{richText}</Text>
 }

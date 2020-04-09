@@ -10,43 +10,34 @@ import { NotesStore } from 'data-store'
 import { NoteBundle } from 'data-store/data-types'
 import { SearchStateProvider } from 'components/search'
 
-function filterNoteBundles(noteBundles: NoteBundle[], regex: RegExp) {
-  const predicate = (noteBundle: NoteBundle) => {
-    noteBundle.matches = noteBundle.notes.reduce((matchCount, note) => {
-      return matchCount + (note.text.match(regex) || []).length
-    }, 0)
-
-    return noteBundle.matches > 0
-  }
-
-  const filteredNoteBundles = noteBundles.filter(predicate)
-  return filteredNoteBundles.sort(bundle => -1 * (bundle.matches || 0))
-}
-
 function NotesScreen() {
-  const [rawNoteBundles, setRawNoteBundles] = useState<NoteBundle[]>([])
   const [noteBundles, setNoteBundles] = useState<NoteBundle[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const refreshData = async () => {
-    console.log('refreshData')
-    const notesData = await NotesStore.all()
+  const refreshData = useCallback(async () => {
+    // console.log(`refreshData - search: "${searchTerm}"`)
+    let notesData: NoteBundle[]
+    if (searchTerm) {
+      const regex = RegExp(searchTerm.split(' ').join('|'), 'gi')
+      notesData = await NotesStore.filter((noteBundle: NoteBundle) => {
+        // memory.matches is the negative of how many times the substring is found
+        // which is used for the sortBy below. Negative is used to sort desc.
+        noteBundle.matches = (noteBundle.notes[0].text.match(regex) || []).length
+        return noteBundle.matches > 0
+      })
+      //  _.sortBy(memories, (memory) => (-1 * memory.matches))
+    } else notesData = await NotesStore.all()
+
     setNoteBundles(notesData.reverse())
     setLoading(false)
-  }
+  }, [searchTerm])
 
   useEffect(() => {
     refreshData()
-    console.log('set listener')
     NotesStore.addChangeListener(refreshData)
     return () => NotesStore.removeChangeListener(refreshData)
-  }, [])
-
-  const search = useCallback((searchTerm: string) => {
-    const matchEachWordPattern = RegExp(searchTerm.split(' ').join('|'), 'gi')
-
-    // setNoteBundles(filterNoteBundles(rawNoteBundles, matchEachWordPattern))
-  }, [])
+  }, [refreshData, searchTerm])
 
   const [editMode, setEditMode] = useState(false)
 
@@ -74,14 +65,25 @@ function NotesScreen() {
     // refreshData()
   }
 
+  const onEditClose = () => {
+    setEditMode(false)
+    setEditBundle(undefined)
+    setEditNoteIndex(undefined)
+  }
+
   return (
     <Screen>
       <SearchStateProvider>
-        <Controls onSearchChange={search} minimize={minimizeSearch} />
+        <Controls
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          minimize={minimizeSearch}
+        />
         <NoteBundleList
           noteBundles={noteBundles}
           onDoneTogglePress={onDoneTogglePress}
           onEditPress={onEditPress}
+          onHashtagPress={setSearchTerm}
         />
         <NoteEntry
           isOpen={editMode}
@@ -89,6 +91,7 @@ function NotesScreen() {
           onSaved={refresh}
           initialNoteBundle={editBundle}
           initialNoteIndex={editNoteIndex}
+          onClose={onEditClose}
         />
       </SearchStateProvider>
     </Screen>
@@ -99,18 +102,20 @@ interface NoteBundleListProps {
   noteBundles: NoteBundle[]
   onDoneTogglePress: (noteBundle: NoteBundle, noteIndex: number) => any
   onEditPress: (noteBundle: NoteBundle, noteIndex: number) => any
+  onHashtagPress: (hashtag: string) => void
 }
 
-const NoteBundleList = ({ noteBundles, onDoneTogglePress, onEditPress }: NoteBundleListProps) => (
+const NoteBundleList = (props: NoteBundleListProps) => (
   <NotesScrollView>
     <NotesList
-      data={noteBundles}
-      extraData={noteBundles.length}
+      data={props.noteBundles}
+      extraData={props.noteBundles.length}
       renderItem={({ item }) => (
         <NoteBundleListItem
           noteBundle={item}
-          onDoneTogglePress={i => onDoneTogglePress(item, i)}
-          onEditPress={i => onEditPress(item, i)}
+          onDoneTogglePress={i => props.onDoneTogglePress(item, i)}
+          onEditPress={i => props.onEditPress(item, i)}
+          onHashtagPress={props.onHashtagPress}
         />
       )}
       keyExtractor={noteBundle => noteBundle.id.toString()}
@@ -124,6 +129,7 @@ const NotesScrollView = styled.KeyboardAvoidingView`
   background-color: ${colors.background};
   border-top-left-radius: 30px;
   border-top-right-radius: 30px;
+  z-index: 1;
 `
 
 const NotesList = styled(FlatList as new () => FlatList<NoteBundle>)`

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode, useState } from 'react'
-import { View, Text, TextInput, StyleSheet } from 'react-native'
+import RichTextInput from 'components/rich-text/text-input'
 import { colors } from 'theme'
 import styled from 'styled-components/native'
 import Icon from 'react-native-vector-icons/Feather'
@@ -19,19 +19,16 @@ export const SearchStateProvider = (props: { children: ReactNode }) => {
 export const useSearchState = () => useContext(SearchStateContext)
 
 interface SearchProps {
-  onChangeText: (value: string) => void
+  value: string
+  onSearchChange: (value: string) => void
 }
 
-export const SearchBar = ({ onChangeText }: SearchProps) => {
-  const [searchValue, setSearchValue] = useSearchState()
-
-  return (
-    <SearchContainer>
-      <SearchIcon />
-      <SearchInput onChangeText={setSearchValue} value={searchValue} />
-    </SearchContainer>
-  )
-}
+export const SearchBar = ({ value, onSearchChange }: SearchProps) => (
+  <SearchContainer>
+    <SearchIcon />
+    <SearchInput onChangeText={onSearchChange} value={value} />
+  </SearchContainer>
+)
 
 const SearchContainer = styled.View`
   display: flex;
@@ -42,9 +39,19 @@ const SearchContainer = styled.View`
   border-radius: 25px;
 `
 
-const SearchInput = styled.TextInput.attrs({ placeholder: 'Search' })`
+// const SearchInput = styled.TextInput.attrs({ placeholder: 'Search' })`
+//   flex: 1;
+//   padding: 4px 12px;
+//   font-size: 15px;
+// `
+
+const SearchInput = styled(RichTextInput).attrs({
+  selectionColor: colors.primary,
+  hashtagStyle: { color: colors.primaryDark },
+})`
   flex: 1;
-  padding: 4px 8px;
+  padding: 10px 15px;
+  font-size: 15px;
 `
 
 const SearchIcon = styled(Icon).attrs({ name: 'search' })`

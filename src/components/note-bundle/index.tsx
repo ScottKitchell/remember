@@ -8,11 +8,12 @@ interface NoteBundleProps {
   noteBundle: NoteBundle
   onDoneTogglePress: (noteIndex: number, note: Note) => any
   onEditPress: (noteIndex: number, note: Note) => any
+  onHashtagPress: (hashtag: string) => any
 }
 
 export const NoteBundleListItem = (props: NoteBundleProps) => (
   <NoteBundleContainer>
-    <BundleInfo noteBundle={props.noteBundle} />
+    {/* <BundleInfo noteBundle={props.noteBundle} /> */}
 
     <BundleDetailsContainer>
       <AvatarCol>
@@ -28,6 +29,7 @@ export const NoteBundleListItem = (props: NoteBundleProps) => (
             isLast={i === props.noteBundle.notes.length - 1}
             onDoneTogglePress={() => props.onDoneTogglePress(i, note)}
             onEditPress={() => props.onEditPress(i, note)}
+            onHashtagPress={props.onHashtagPress}
           />
         ))}
       </NotesCol>
@@ -42,11 +44,14 @@ const NoteBundleContainer = styled.View`
 const BundleDetailsContainer = styled.View`
   display: flex;
   flex-direction: row;
+  align-items: stretch;
 `
 
 const AvatarCol = styled.View`
   flex-grow: 0;
   flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
 `
 
 const NotesCol = styled.View`

@@ -9,6 +9,7 @@ import Icon from 'react-native-vector-icons/Feather'
 
 interface NoteEntryProps {
   isOpen: boolean
+  onClose: () => any
   onFocus: () => any
   initialNoteBundle?: NoteBundle
   initialNoteIndex: number
@@ -17,6 +18,7 @@ interface NoteEntryProps {
 
 export const NoteEntry = ({
   isOpen,
+  onClose,
   initialNoteBundle,
   initialNoteIndex,
   onSaved,
@@ -28,7 +30,10 @@ export const NoteEntry = ({
   // const saveBundle = useSaveNoteBundle()
 
   useEffect(() => {
-    if (isOpen && noteInputRef.current) noteInputRef.current.focus()
+    if (isOpen) {
+      noteInputRef.current?.focus()
+      setIsFocused(true)
+    }
   }, [isOpen])
 
   useEffect(() => {
@@ -63,6 +68,19 @@ export const NoteEntry = ({
 
   const insertHashtag = () => noteInputRef.current && noteInputRef.current.insertAtCursor('#')
 
+  const remove = async () => {
+    if (!initialNoteBundle) return
+
+    NotesStore.delete(initialNoteBundle.id)
+    noteInputRef.current?.clear()
+    noteInputRef.current?.blur()
+  }
+
+  const close = () => {
+    setIsFocused(false)
+    onClose()
+  }
+
   return (
     <NoteEntryView>
       <NoteEntryContainer>
@@ -75,13 +93,14 @@ export const NoteEntry = ({
             hashtagStyle={{ color: colors.primaryDark }}
             returnKeyType="done"
             onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
+            onBlur={close}
             autoFocus={true}
+            selectionColor={colors.primary}
           />
         </InputCol>
         <SubmitCol>
           <SubmitButton onPress={save}>
-            <SubmitIcon name={!initialNoteBundle ? 'plus' : 'check'} />
+            <SubmitIcon name={'arrow-up'} />
           </SubmitButton>
         </SubmitCol>
       </NoteEntryContainer>
@@ -91,7 +110,7 @@ export const NoteEntry = ({
           <TagButton onPress={insertHashtag} />
           <ReminderButton />
           <RepeatButton />
-          <TrashButton disabled={initialNoteBundle} />
+          <TrashButton onPress={remove} />
           <ShiftBundleButton shift="down" />
         </ControlsContainer>
       )}
@@ -99,7 +118,7 @@ export const NoteEntry = ({
   )
 }
 NoteEntry.defaultProps = {
-  initialNoteIndex: 0,
+  initialNoteIndex: 0
 }
 
 const NoteEntryView = ({ children }: { children: ReactNode }) => (
@@ -111,6 +130,7 @@ const NoteEntryView = ({ children }: { children: ReactNode }) => (
 const NoteEntryBackground = styled.View`
   background-color: ${colors.background};
   overflow: visible;
+  z-index: 2;
 `
 
 const NoteEntryForeground = styled.View`
@@ -118,6 +138,12 @@ const NoteEntryForeground = styled.View`
   background-color: ${colors.background};
   border-top-left-radius: 30px;
   border-top-right-radius: 30px;
+  border-color: transparent;
+  shadow-color: #000;
+  shadow-offset: 0px 0px;
+  shadow-opacity: 1.0;
+  shadow-radius: 10px;
+  elevation: 15;
 `
 
 const NoteEntryContainer = styled.View`
@@ -127,6 +153,7 @@ const NoteEntryContainer = styled.View`
   align-items: stretch;
   background-color: ${colors.background};
   padding: 10px;
+  border-radius: 20px;
 `
 
 const InputCol = styled.View`
@@ -140,14 +167,11 @@ const SubmitCol = styled.View`
   justify-content: flex-end;
 `
 
-const NoteInput = styled(RichTextInput).attrs({ multiline: true })`
+const NoteInput = styled(RichTextInput).attrs({ multiline: true, selectionColor: colors.primary })`
   background-color: ${colors.bubble};
   border-radius: 22px;
-  padding-top: 6px;
-  padding-right: 15px;
-  padding-bottom: 6px;
-  padding-left: 15px;
-  font-size: 14px;
+  padding: 10px 15px;
+  font-size: 15px;
 `
 
 const SubmitButton = styled.TouchableOpacity`

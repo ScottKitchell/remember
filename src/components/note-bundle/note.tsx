@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react'
-import { Vibration } from 'react-native'
+import { Vibration, Linking, ToastAndroid } from 'react-native'
 import styled from 'styled-components/native'
 import { Note } from 'data-store/data-types'
-import { colors } from 'theme'
+import { colors, text } from 'theme'
 import RichText from 'components/rich-text/text'
 import Icon from 'react-native-vector-icons/Feather'
 
@@ -12,8 +12,16 @@ interface NoteProps {
   isLast: boolean
   onDoneTogglePress: () => any
   onEditPress: () => any
+  onHashtagPress: (hashtag: string) => any
 }
-export const NoteRow = ({ note, isFirst, isLast, onDoneTogglePress, onEditPress }: NoteProps) => {
+export const NoteRow = ({
+  note,
+  isFirst,
+  isLast,
+  onDoneTogglePress,
+  onEditPress,
+  onHashtagPress,
+}: NoteProps) => {
   const toggleChecked = () => {
     onDoneTogglePress()
     Vibration.vibrate(30)
@@ -23,6 +31,11 @@ export const NoteRow = ({ note, isFirst, isLast, onDoneTogglePress, onEditPress 
     onEditPress()
     Vibration.vibrate(60)
   }
+
+  const openUrl = async (url: string) =>
+    Linking.openURL(url).catch(() =>
+      ToastAndroid.showWithGravity('Could not open URL', ToastAndroid.SHORT, ToastAndroid.BOTTOM),
+    )
 
   return (
     <NoteContainer>
@@ -37,7 +50,9 @@ export const NoteRow = ({ note, isFirst, isLast, onDoneTogglePress, onEditPress 
         onPress={toggleChecked}
         onLongPress={edit}
       >
-        <RichText hashtagStyle={{ color: colors.primaryDark }}>{note.text}</RichText>
+        <FormattedText onUrlPress={openUrl} onHashtagPress={onHashtagPress}>
+          {note.text}
+        </FormattedText>
       </NoteBubble>
     </NoteContainer>
   )
@@ -88,4 +103,11 @@ const NoteBubble = styled.TouchableHighlight.attrs({ underlayColor: colors.bubbl
   border-top-right-radius: ${props => (props.isFirst ? 20 : 0)}px;
   border-bottom-left-radius: ${props => (props.isLast ? 20 : 0)}px;
   border-bottom-right-radius: ${props => (props.isLast ? 20 : 0)}px;
+`
+
+const FormattedText = styled(RichText).attrs({
+  hashtagStyle: { color: colors.primaryDark },
+  urlStyle: { color: colors.primaryDark, textDecorationLine: 'underline' },
+})`
+  font-size: 15px;
 `

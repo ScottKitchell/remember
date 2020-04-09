@@ -41,6 +41,8 @@ export default class RichTextInput extends Component<RichTextInputProps, RichTex
 
   focus = () => this.textInputRef.current && this.textInputRef.current.focus()
 
+  blur = () => this.textInputRef.current && this.textInputRef.current.blur()
+
   clear = () => {
     if (this.props.onChangeText) this._handleChangeText('')
     else if (this.textInputRef.current) this.textInputRef.current.clear()
