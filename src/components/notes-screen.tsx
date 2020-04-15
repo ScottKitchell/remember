@@ -1,23 +1,66 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { FlatList } from 'react-native'
-import styled from 'styled-components/native'
-import { colors } from 'theme'
+import React, { useState, useReducer, useEffect, useCallback } from 'react'
+import Screen from './screen'
 import { Controls } from 'components/controls'
-import { NoteEntry } from 'components/note-entry'
-import { NoteBundleListItem } from 'components/note-bundle'
-import Screen from 'components/screen'
+import { NotesFeed } from 'components/notes-feed'
+import { NoteEditor } from 'components/note-editor'
 import { NotesStore } from 'data-store'
 import { NoteBundle } from 'data-store/data-types'
-import { SearchStateProvider } from 'components/search'
 import dayjs from 'dayjs'
 
 function NotesScreen() {
-  const [noteBundles, setNoteBundles] = useState<NoteBundle[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const minimizeSearch = false
+
+  const noteBundles = useNoteBundles(searchTerm)
+
+  const [editorState, dispatchEditorState] = useEditorReducer({
+    open: true,
+    newBundle: true,
+    noteBundleIndex: undefined,
+    noteIndex: undefined,
+  })
+
+  const onDoneTogglePress = useCallback((noteBundle: NoteBundle, noteIndex: number) => {
+    noteBundle.notes[noteIndex].checkedAt = !noteBundle.notes[noteIndex].checkedAt
+      ? dayjs().toISOString()
+      : null
+    NotesStore.save(noteBundle)
+  }, [])
+
+  const openEditorForNote = useCallback(
+    (noteBundleIndex: number, noteIndex: number) =>
+      dispatchEditorState({ type: 'EDIT', noteBundleIndex, noteIndex }),
+    [dispatchEditorState],
+  )
+
+  const noteBundle =
+    editorState.noteBundleIndex !== undefined ? noteBundles[editorState.noteBundleIndex] : undefined
+
+  return (
+    <Screen>
+      <Controls searchValue={searchTerm} onSearchChange={setSearchTerm} minimize={minimizeSearch} />
+      <NotesFeed
+        noteBundles={noteBundles}
+        onDoneTogglePress={onDoneTogglePress}
+        onEditPress={openEditorForNote}
+        onHashtagPress={setSearchTerm}
+      />
+      <NoteEditor
+        isOpen={editorState.open}
+        onOpen={() => dispatchEditorState({ type: 'OPEN' })}
+        onSave={() => dispatchEditorState({ type: 'NEXT' })}
+        onClose={() => dispatchEditorState({ type: 'CLOSE' })}
+        noteBundle={noteBundle}
+        noteIndex={editorState.noteIndex}
+      />
+    </Screen>
+  )
+}
+
+function useNoteBundles(searchTerm?: string) {
+  const [noteBundles, setNoteBundles] = useState<NoteBundle[]>([])
 
   const refreshData = useCallback(async () => {
-    // console.log(`refreshData - search: "${searchTerm}"`)
     let notesData: NoteBundle[]
     if (searchTerm) {
       const regex = RegExp(searchTerm.split(' ').join('|'), 'gi')
@@ -31,7 +74,6 @@ function NotesScreen() {
     } else notesData = await NotesStore.all()
 
     setNoteBundles(notesData.reverse())
-    setLoading(false)
   }, [searchTerm])
 
   useEffect(() => {
@@ -40,104 +82,57 @@ function NotesScreen() {
     return () => NotesStore.removeChangeListener(refreshData)
   }, [refreshData, searchTerm])
 
-  const [editMode, setEditMode] = useState(false)
-
-  const [editBundle, setEditBundle] = useState<NoteBundle>()
-  const [editNoteIndex, setEditNoteIndex] = useState<number>()
-
-  const minimizeSearch = false
-
-  const onDoneTogglePress = async (noteBundle: NoteBundle, noteIndex: number) => {
-    noteBundle.notes[noteIndex].checkedAt = !noteBundle.notes[noteIndex].checkedAt
-      ? dayjs().toISOString()
-      : null
-    await NotesStore.save(noteBundle)
-  }
-
-  const onEditPress = (noteBundle: NoteBundle, noteIndex: number) => {
-    setEditBundle(noteBundle)
-    setEditNoteIndex(noteIndex)
-    setEditMode(true)
-  }
-
-  const refresh = () => {
-    setEditBundle(undefined)
-    setEditNoteIndex(undefined)
-    setEditMode(false)
-    // refreshData()
-  }
-
-  const onEditClose = () => {
-    setEditMode(false)
-    setEditBundle(undefined)
-    setEditNoteIndex(undefined)
-  }
-
-  return (
-    <Screen>
-      <SearchStateProvider>
-        <Controls
-          searchValue={searchTerm}
-          onSearchChange={setSearchTerm}
-          minimize={minimizeSearch}
-        />
-        <NoteBundleList
-          noteBundles={noteBundles}
-          onDoneTogglePress={onDoneTogglePress}
-          onEditPress={onEditPress}
-          onHashtagPress={setSearchTerm}
-        />
-        <NoteEntry
-          isOpen={editMode}
-          onFocus={() => setEditMode(true)}
-          onSaved={refresh}
-          initialNoteBundle={editBundle}
-          initialNoteIndex={editNoteIndex}
-          onClose={onEditClose}
-        />
-      </SearchStateProvider>
-    </Screen>
-  )
+  return noteBundles
 }
 
-interface NoteBundleListProps {
-  noteBundles: NoteBundle[]
-  onDoneTogglePress: (noteBundle: NoteBundle, noteIndex: number) => any
-  onEditPress: (noteBundle: NoteBundle, noteIndex: number) => any
-  onHashtagPress: (hashtag: string) => void
+interface EditorState {
+  open: boolean
+  newBundle: boolean
+  noteBundleIndex?: number
+  noteIndex?: number
 }
 
-const NoteBundleList = (props: NoteBundleListProps) => (
-  <NotesScrollView>
-    <NotesList
-      data={props.noteBundles}
-      extraData={props.noteBundles.length}
-      renderItem={({ item }) => (
-        <NoteBundleListItem
-          noteBundle={item}
-          onDoneTogglePress={i => props.onDoneTogglePress(item, i)}
-          onEditPress={i => props.onEditPress(item, i)}
-          onHashtagPress={props.onHashtagPress}
-        />
-      )}
-      keyExtractor={noteBundle => noteBundle.id.toString()}
-      inverted={true}
-    />
-  </NotesScrollView>
-)
+type EditorAction =
+  | {
+      type: 'OPEN' | 'CLOSE' | 'NEXT' | 'CLEAR' | 'TOGGLE-BUNDLE'
+    }
+  | {
+      type: 'EDIT'
+      noteBundleIndex: number
+      noteIndex: number
+    }
 
-const NotesScrollView = styled.KeyboardAvoidingView`
-  flex: 1;
-  background-color: ${colors.background};
-  border-top-left-radius: 30px;
-  border-top-right-radius: 30px;
-  z-index: 1;
-`
+function editorReducer(state: EditorState, action: EditorAction): EditorState {
+  switch (action.type) {
+    case 'OPEN':
+      return { ...state, open: true }
+    case 'CLOSE':
+      return { ...state, open: false }
+    case 'EDIT':
+      return {
+        ...state,
+        open: true,
+        noteBundleIndex: action.noteBundleIndex,
+        noteIndex: action.noteIndex,
+      }
+    case 'TOGGLE-BUNDLE':
+      return { ...state, newBundle: !state.newBundle }
+    case 'NEXT':
+      return {
+        ...state,
+        open: true,
+        newBundle: false,
+        noteBundleIndex: undefined,
+        noteIndex: undefined,
+      }
+    case 'CLEAR':
+      return { ...state, noteBundleIndex: undefined, noteIndex: undefined }
+    default:
+      return state
+  }
+}
 
-const NotesList = styled(FlatList as new () => FlatList<NoteBundle>)`
-  flex: 1;
-  padding: 10px;
-  overflow: hidden;
-`
+const useEditorReducer = (initialEditorState: EditorState) =>
+  useReducer(editorReducer, initialEditorState)
 
 export default NotesScreen
