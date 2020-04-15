@@ -1,55 +1,59 @@
 import React, { useState, useRef, useEffect, ComponentProps, ReactNode } from 'react'
+import { TouchableOpacityProps } from 'react-native'
 import dayjs from 'dayjs'
 import RichTextInput from 'components/rich-text/text-input'
-import styled, { css } from 'styled-components/native'
+import styled from 'styled-components/native'
 import { colors } from 'theme'
 import { NoteBundle, UnsavedNoteBundle } from 'data-store/data-types'
 import { NotesStore } from 'data-store'
-// import {useSaveNoteBundle} from 'data-store/use-data-store'
 import Icon from 'react-native-vector-icons/Feather'
 
-interface NoteEntryProps {
+type NoteEditorProps = {
   isOpen: boolean
+  onOpen: () => any
   onClose: () => any
-  onFocus: () => any
-  initialNoteBundle?: NoteBundle
-  initialNoteIndex: number
-  onSaved?: () => any
+  onSave: () => any
+  noteBundle?: NoteBundle
+  noteIndex?: number
 }
 
-export const NoteEntry = ({
+export const NoteEditor = ({
   isOpen,
+  onOpen,
+  onSave,
   onClose,
-  initialNoteBundle,
-  initialNoteIndex,
-  onSaved,
-}: NoteEntryProps) => {
-  const initialNoteText = initialNoteBundle ? initialNoteBundle.notes[initialNoteIndex].text : ''
+  noteBundle,
+  noteIndex,
+}: NoteEditorProps) => {
+  const initialNoteText =
+    noteBundle && noteIndex !== undefined ? noteBundle.notes[noteIndex].text : ''
+
   const [noteText, setNoteText] = useState(initialNoteText)
-  const [isFocused, setIsFocused] = useState(isOpen)
   const noteInputRef = useRef<RichTextInput>(null)
-  // const saveBundle = useSaveNoteBundle()
 
   useEffect(() => {
-    if (isOpen) {
-      noteInputRef.current?.focus()
-      setIsFocused(true)
-    }
+    if (!noteInputRef.current) return
+    if (isOpen) noteInputRef.current.focus()
+    else noteInputRef.current.blur()
   }, [isOpen])
 
   useEffect(() => {
     if (isOpen) setNoteText(initialNoteText)
   }, [isOpen, initialNoteText])
 
-  const formBundle = (): UnsavedNoteBundle => {
+  const updateBundle = (): UnsavedNoteBundle => {
     const now = dayjs().toISOString()
 
-    if (initialNoteBundle) {
-      const updatedNote = { ...initialNoteBundle.notes[initialNoteIndex], text: noteText, modifiedAt: now }
-      const updatedNotes = Object.assign([], initialNoteBundle.notes, {
-        [initialNoteIndex]: updatedNote,
+    if (noteBundle && noteIndex !== undefined) {
+      const updatedNote = {
+        ...noteBundle.notes[noteIndex],
+        text: noteText,
+        modifiedAt: now,
+      }
+      const updatedNotes = Object.assign([], noteBundle.notes, {
+        [noteIndex]: updatedNote,
       })
-      return { ...initialNoteBundle, notes: updatedNotes }
+      return { ...noteBundle, notes: updatedNotes }
     } else {
       return {
         notes: [{ text: noteText, checkedAt: null, createdAt: now, modifiedAt: now }],
@@ -60,27 +64,22 @@ export const NoteEntry = ({
   }
 
   const save = async () => {
-    if (noteText.length <= 0) return
+    if (!noteText.trim()) return
 
-    const notesBundle = formBundle()
+    const notesBundle = updateBundle()
     setNoteText('')
-    // await saveBundle(notesBundle)
-    NotesStore.save(notesBundle)
-    if (onSaved) onSaved()
+    await NotesStore.save(notesBundle)
+    onSave()
+    if (noteBundle && noteIndex !== undefined) onClose()
   }
 
   const insertHashtag = () => noteInputRef.current && noteInputRef.current.insertAtCursor('#')
 
   const remove = async () => {
-    if (!initialNoteBundle) return
+    if (!noteBundle) return
 
-    NotesStore.delete(initialNoteBundle.id)
-    noteInputRef.current?.clear()
-    noteInputRef.current?.blur()
-  }
-
-  const close = () => {
-    setIsFocused(false)
+    NotesStore.delete(noteBundle.id)
+    if (noteInputRef.current) noteInputRef.current.clear()
     onClose()
   }
 
@@ -95,20 +94,19 @@ export const NoteEntry = ({
             placeholder="What to remember..."
             hashtagStyle={{ color: colors.primaryDark }}
             returnKeyType="done"
-            onFocus={() => setIsFocused(true)}
-            onBlur={close}
+            onFocus={onOpen}
+            onBlur={onClose}
             autoFocus={true}
             selectionColor={colors.primary}
           />
         </InputCol>
+
         <SubmitCol>
-          <SubmitButton onPress={save}>
-            <SubmitIcon name={'arrow-up'} />
-          </SubmitButton>
+          <SaveButton onPress={save} isEditing={!!(noteBundle && noteIndex !== undefined)} />
         </SubmitCol>
       </NoteEntryContainer>
 
-      {isFocused && (
+      {isOpen && (
         <ControlsContainer>
           <TagButton onPress={insertHashtag} />
           <ReminderButton />
@@ -120,8 +118,8 @@ export const NoteEntry = ({
     </NoteEntryView>
   )
 }
-NoteEntry.defaultProps = {
-  initialNoteIndex: 0
+NoteEditor.defaultProps = {
+  noteIndex: 0,
 }
 
 const NoteEntryView = ({ children }: { children: ReactNode }) => (
@@ -144,7 +142,7 @@ const NoteEntryForeground = styled.View`
   border-color: transparent;
   shadow-color: #000;
   shadow-offset: 0px 0px;
-  shadow-opacity: 1.0;
+  shadow-opacity: 1;
   shadow-radius: 10px;
   elevation: 15;
 `
@@ -177,12 +175,25 @@ const NoteInput = styled(RichTextInput).attrs({ multiline: true, selectionColor:
   font-size: 15px;
 `
 
-const SubmitButton = styled.TouchableOpacity`
-  padding: 10px;
+const SaveButton = (props: { onPress: () => any; isEditing: boolean }) => (
+  <SubmitTouchable onPress={props.onPress} isEditing={props.isEditing}>
+    <SubmitIcon name={props.isEditing ? 'save' : 'send'} />
+  </SubmitTouchable>
+)
+
+// Because the `send` icon doesn't appear centered correctly, he have to modify the padding
+// manually 🙄
+const SubmitTouchable = styled.TouchableOpacity<TouchableOpacityProps & { isEditing: boolean }>`
+  padding: ${props => (props.isEditing ? '10px' : '11px 11px 9px 9px')};
   background-color: ${colors.primary};
   border-radius: 22px;
   justify-content: center;
   align-items: center;
+  color: ${colors.textLight};
+`
+
+const SubmitIcon = styled(Icon)`
+  font-size: 22px;
   color: ${colors.textLight};
 `
 
@@ -239,9 +250,4 @@ type ControlIconProps = { disabled?: boolean } & ComponentProps<typeof Icon>
 const ControlIcon = styled(Icon)<ControlIconProps>`
   font-size: 22px;
   color: ${props => (!props.disabled ? colors.primaryDark : colors.secondary)};
-`
-
-const SubmitIcon = styled(Icon)`
-  font-size: 22px;
-  color: ${colors.textLight};
 `
