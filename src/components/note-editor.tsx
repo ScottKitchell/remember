@@ -1,34 +1,37 @@
-import React, { useState, useRef, useEffect, ComponentProps, ReactNode } from 'react'
-import { TouchableOpacityProps } from 'react-native'
-import dayjs from 'dayjs'
-import RichTextInput from 'components/rich-text/text-input'
-import styled from 'styled-components/native'
-import { colors } from 'theme'
-import { NoteBundle, UnsavedNoteBundle } from 'data-store/data-types'
-import { NotesStore } from 'data-store'
-import Icon from 'react-native-vector-icons/Feather'
+import React, { useState, useRef, useEffect, ComponentProps, ReactNode } from "react"
+import { TouchableOpacityProps } from "react-native"
+import dayjs from "dayjs"
+import RichTextInput from "components/rich-text/text-input"
+import styled from "styled-components/native"
+import { colors } from "theme"
+import { NoteBundle, UnsavedNoteBundle } from "data-store/data-types"
+import { NotesStore } from "data-store"
+import Icon from "react-native-vector-icons/Feather"
+import produce from "immer"
 
 type NoteEditorProps = {
   isOpen: boolean
-  onOpen: () => any
-  onClose: () => any
+  onFocus: () => any
+  onBlur: () => any
   onSave: () => any
-  noteBundle?: NoteBundle
-  noteIndex?: number
+  noteBundle: NoteBundle | null
+  noteIndex: number | null | "new"
+  toggleNewBundle: () => any
 }
 
 export const NoteEditor = ({
   isOpen,
-  onOpen,
+  onFocus,
   onSave,
-  onClose,
+  onBlur,
   noteBundle,
   noteIndex,
+  toggleNewBundle,
 }: NoteEditorProps) => {
-  const initialNoteText =
-    noteBundle && noteIndex !== undefined ? noteBundle.notes[noteIndex].text : ''
+  const isEditing = !!(noteBundle && typeof noteIndex === "number")
+  const isNewBundle = noteBundle === null
+  const [noteText, setNoteText] = useState("")
 
-  const [noteText, setNoteText] = useState(initialNoteText)
   const noteInputRef = useRef<RichTextInput>(null)
 
   useEffect(() => {
@@ -38,51 +41,56 @@ export const NoteEditor = ({
   }, [isOpen])
 
   useEffect(() => {
-    if (isOpen) setNoteText(initialNoteText)
-  }, [isOpen, initialNoteText])
+    if (isOpen && noteBundle && typeof noteIndex === "number")
+      setNoteText(noteBundle.notes[noteIndex].text)
+  }, [isOpen, noteBundle, noteIndex])
 
   const updateBundle = (): UnsavedNoteBundle => {
     const now = dayjs().toISOString()
 
-    if (noteBundle && noteIndex !== undefined) {
-      const updatedNote = {
-        ...noteBundle.notes[noteIndex],
-        text: noteText,
-        modifiedAt: now,
-      }
-      const updatedNotes = Object.assign([], noteBundle.notes, {
-        [noteIndex]: updatedNote,
+    if (isEditing && noteBundle && typeof noteIndex === "number") {
+      // Edit Note
+      return produce(noteBundle, draftNoteBundle => {
+        draftNoteBundle.notes[noteIndex].text = noteText
+        draftNoteBundle.notes[noteIndex].modifiedAt = now
       })
-      return { ...noteBundle, notes: updatedNotes }
-    } else {
-      return {
-        notes: [{ text: noteText, checkedAt: null, createdAt: now, modifiedAt: now }],
-        createdAt: now,
-        creationType: 'user',
-      }
     }
+
+    const newNote = { text: noteText, checkedAt: null, createdAt: now, modifiedAt: now }
+
+    if (noteBundle) {
+      // New note appended to bundle
+      return produce(noteBundle, draftNoteBundle => {
+        draftNoteBundle.notes.push(newNote)
+      })
+    }
+
+    // New note & bundle
+    return { notes: [newNote], createdAt: now, creationType: "user" }
   }
 
   const save = async () => {
     if (!noteText.trim()) return
 
     const notesBundle = updateBundle()
-    setNoteText('')
+    setNoteText("")
     await NotesStore.save(notesBundle)
     onSave()
-    if (noteBundle && noteIndex !== undefined) onClose()
+    if (isEditing) onBlur()
   }
 
-  const insertHashtag = () => noteInputRef.current && noteInputRef.current.insertAtCursor('#')
+  const insertHashtag = () => noteInputRef.current && noteInputRef.current.insertAtCursor("#")
 
   const remove = async () => {
     if (!noteBundle) return
 
     NotesStore.delete(noteBundle.id)
-    if (noteInputRef.current) noteInputRef.current.clear()
-    onClose()
+    // if (noteInputRef.current) noteInputRef.current.clear()
+    setNoteText("")
+    onBlur()
   }
 
+  console.log("noteText", noteText)
   return (
     <NoteEntryView>
       <NoteEntryContainer>
@@ -94,15 +102,15 @@ export const NoteEditor = ({
             placeholder="What to remember..."
             hashtagStyle={{ color: colors.primaryDark }}
             returnKeyType="done"
-            onFocus={onOpen}
-            onBlur={onClose}
+            onFocus={onFocus}
+            onBlur={onBlur}
             autoFocus={true}
             selectionColor={colors.primary}
           />
         </InputCol>
 
         <SubmitCol>
-          <SaveButton onPress={save} isEditing={!!(noteBundle && noteIndex !== undefined)} />
+          <SaveButton onPress={save} isEditing={isEditing} />
         </SubmitCol>
       </NoteEntryContainer>
 
@@ -111,8 +119,8 @@ export const NoteEditor = ({
           <TagButton onPress={insertHashtag} />
           <ReminderButton />
           <RepeatButton />
-          <TrashButton onPress={remove} />
-          <ShiftBundleButton shift="down" />
+          <TrashButton onPress={remove} disabled={!isEditing} />
+          <ShiftBundleButton shift={isNewBundle ? "up" : "down"} onPress={toggleNewBundle} />
         </ControlsContainer>
       )}
     </NoteEntryView>
@@ -177,14 +185,14 @@ const NoteInput = styled(RichTextInput).attrs({ multiline: true, selectionColor:
 
 const SaveButton = (props: { onPress: () => any; isEditing: boolean }) => (
   <SubmitTouchable onPress={props.onPress} isEditing={props.isEditing}>
-    <SubmitIcon name={props.isEditing ? 'save' : 'send'} />
+    <SubmitIcon name={props.isEditing ? "save" : "send"} />
   </SubmitTouchable>
 )
 
 // Because the `send` icon doesn't appear centered correctly, he have to modify the padding
 // manually 🙄
 const SubmitTouchable = styled.TouchableOpacity<TouchableOpacityProps & { isEditing: boolean }>`
-  padding: ${props => (props.isEditing ? '10px' : '11px 11px 9px 9px')};
+  padding: ${props => (props.isEditing ? "10px" : "11px 11px 9px 9px")};
   background-color: ${colors.primary};
   border-radius: 22px;
   justify-content: center;
@@ -217,7 +225,7 @@ const ReminderButton = (props: ControlButtonProps) => (
   </ControlButton>
 )
 
-type ShiftButtonProps = ControlButtonProps & { shift: 'up' | 'down' }
+type ShiftButtonProps = ControlButtonProps & { shift: "up" | "down" }
 
 const ShiftBundleButton = ({ shift, ...props }: ShiftButtonProps) => (
   <ControlButton {...props}>

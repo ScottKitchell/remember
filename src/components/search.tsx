@@ -21,12 +21,13 @@ export const useSearchState = () => useContext(SearchStateContext)
 interface SearchProps {
   value: string
   onSearchChange: (value: string) => void
+  onFocus: () => void
 }
 
-export const SearchBar = ({ value, onSearchChange }: SearchProps) => (
+export const SearchBar = ({ value, onSearchChange, onFocus }: SearchProps) => (
   <SearchContainer>
     <SearchIcon />
-    <SearchInput onChangeText={onSearchChange} value={value} />
+    <SearchInput onChangeText={onSearchChange} value={value} onFocus={onFocus} />
   </SearchContainer>
 )
 

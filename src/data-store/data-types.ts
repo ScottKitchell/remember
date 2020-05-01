@@ -9,10 +9,10 @@ export interface NoteBundle {
   id: number
   notes: Note[]
   createdAt: string
-  creationType: 'user' | 'reminder'
-  matches?: number
+  creationType: "user" | "reminder"
+  matches?: boolean
 }
 
-export interface UnsavedNoteBundle extends Omit<NoteBundle, 'id'> {
+export interface UnsavedNoteBundle extends Omit<NoteBundle, "id"> {
   id?: number
 }

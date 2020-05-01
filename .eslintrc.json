@@ -5,6 +5,7 @@
   "rules": {
     "curly": ["error", "multi-or-nest"],
     "semi": "off",
+    "quotes": "off",
     "prettier/prettier": "warn"
   }
 }

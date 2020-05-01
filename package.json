@@ -11,6 +11,8 @@
   "dependencies": {
     "@react-native-community/async-storage": "^1.8.1",
     "dayjs": "^1.8.23",
+    "fuzzy-search": "^3.2.1",
+    "immer": "^6.0.3",
     "react": "16.9.0",
     "react-native": "0.61.5",
     "react-native-vector-icons": "^6.6.0",
@@ -21,6 +23,7 @@
     "@babel/runtime": "^7.8.4",
     "@react-native-community/eslint-config": "^0.0.7",
     "@react-native-community/eslint-plugin": "^1.0.0",
+    "@types/fuzzy-search": "^2.1.0",
     "@types/jest": "^24.0.18",
     "@types/react-native": "^0.61.17",
     "@types/react-native-vector-icons": "^6.4.5",
