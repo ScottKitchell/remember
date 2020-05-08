@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, ComponentProps, ReactNode } from "react"
-import { TouchableOpacityProps } from "react-native"
+import { Keyboard, TouchableOpacityProps } from "react-native"
 import dayjs from "dayjs"
 import RichTextInput from "components/rich-text/text-input"
 import styled from "styled-components/native"
@@ -35,9 +35,17 @@ export const NoteEditor = ({
   const noteInputRef = useRef<RichTextInput>(null)
 
   useEffect(() => {
+    Keyboard.addListener("keyboardDidShow", onFocus)
+    Keyboard.addListener("keyboardDidHide", onBlur)
+    return () => {
+      Keyboard.removeListener("keyboardDidShow", onFocus)
+      Keyboard.removeListener("keyboardDidHide", onBlur)
+    }
+  }, [onFocus, onBlur])
+
+  useEffect(() => {
     if (!noteInputRef.current) return
     if (isOpen) noteInputRef.current.focus()
-    else noteInputRef.current.blur()
   }, [isOpen])
 
   useEffect(() => {
@@ -90,7 +98,6 @@ export const NoteEditor = ({
     onBlur()
   }
 
-  console.log("noteText", noteText)
   return (
     <NoteEntryView>
       <NoteEntryContainer>
@@ -99,18 +106,20 @@ export const NoteEditor = ({
             ref={noteInputRef}
             onChangeText={setNoteText}
             value={noteText}
-            placeholder="What to remember..."
+            placeholder="note to self"
             hashtagStyle={{ color: colors.primaryDark }}
-            returnKeyType="done"
+            returnKeyType="send"
+            onSubmitEditing={save}
             onFocus={onFocus}
             onBlur={onBlur}
             autoFocus={true}
             selectionColor={colors.primary}
+            enablesReturnKeyAutomatically={true}
           />
         </InputCol>
 
         <SubmitCol>
-          <SaveButton onPress={save} isEditing={isEditing} />
+          <SaveButton onPress={save} isEditing={isEditing} disabled={!noteText} />
         </SubmitCol>
       </NoteEntryContainer>
 
@@ -183,17 +192,17 @@ const NoteInput = styled(RichTextInput).attrs({ multiline: true, selectionColor:
   font-size: 15px;
 `
 
-const SaveButton = (props: { onPress: () => any; isEditing: boolean }) => (
-  <SubmitTouchable onPress={props.onPress} isEditing={props.isEditing}>
+const SaveButton = (props: { onPress: () => any; isEditing: boolean; disabled: boolean }) => (
+  <SubmitTouchable onPress={props.onPress} isEditing={props.isEditing} disabled={props.disabled}>
     <SubmitIcon name={props.isEditing ? "save" : "send"} />
   </SubmitTouchable>
 )
 
-// Because the `send` icon doesn't appear centered correctly, he have to modify the padding
-// manually 🙄
+// Because the `send` icon doesn't appear centered correctly,
+// we have to modify the padding manually 🙄
 const SubmitTouchable = styled.TouchableOpacity<TouchableOpacityProps & { isEditing: boolean }>`
   padding: ${props => (props.isEditing ? "10px" : "11px 11px 9px 9px")};
-  background-color: ${colors.primary};
+  background-color: ${props => (props.disabled ? colors.secondary : colors.primary)};
   border-radius: 22px;
   justify-content: center;
   align-items: center;

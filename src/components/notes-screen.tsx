@@ -14,15 +14,18 @@ import FuzzySearch from "fuzzy-search"
 type ScreenFocus = "search" | "feed" | "editor"
 type DraftIndex = number | null | "new"
 type DraftNoteIndexes = [DraftIndex, DraftIndex]
+type FilterOptions = "unchecked" | "all"
 
 function NotesScreen() {
   const [noteBundles, setNoteBundles] = useState<NoteBundle[]>([])
   const [screenFocus, setScreenFocus] = useState<ScreenFocus>("editor")
   const [searchPhrase, setSearchPhrase] = useState("")
+  const [filterOption, setFilterOption] = useState<FilterOptions>("unchecked")
   const [draftNoteIndexes, setDraftNoteIndexes] = useState<DraftNoteIndexes>(["new", "new"])
 
   useOnAppOpen(() => {
-    setScreenFocus("editor")
+    // Quick-draw that editor if not searching ;)
+    if (screenFocus === "feed" && !searchPhrase) setScreenFocus("editor")
   })
 
   const refreshData = useCallback(async () => {
