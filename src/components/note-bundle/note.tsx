@@ -39,8 +39,6 @@ export const NoteRow = ({
       ToastAndroid.showWithGravity("Could not open URL", ToastAndroid.SHORT, ToastAndroid.BOTTOM),
     )
 
-  if (note.text === "...") console.log("isDraft ...", isDraft)
-
   return (
     <NoteContainer>
       <DoneIndicatorContainer onPress={toggleChecked}>

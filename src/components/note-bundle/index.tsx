@@ -24,7 +24,6 @@ export const NoteBundleListItem = (props: NoteBundleProps) => {
 
   const isItemADraft2 = (i: number, note: Note) => {
     const draft = isItemADraft(i)
-    if (note.text === "...") console.log("draft", draft, props.draftIndex)
     return draft
   }
 

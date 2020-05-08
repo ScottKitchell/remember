@@ -1,15 +1,15 @@
-import React, { createContext, useContext, ReactNode, useState } from 'react'
-import RichTextInput from 'components/rich-text/text-input'
-import { colors } from 'theme'
-import styled from 'styled-components/native'
-import Icon from 'react-native-vector-icons/Feather'
+import React, { createContext, useContext, ReactNode, useState } from "react"
+import RichTextInput from "components/rich-text/text-input"
+import { colors } from "theme"
+import styled from "styled-components/native"
+import Icon from "react-native-vector-icons/Feather"
 
 type SearchContextType = [string, React.Dispatch<React.SetStateAction<string>>]
 
-const SearchStateContext = createContext<SearchContextType>(['', () => null])
+const SearchStateContext = createContext<SearchContextType>(["", () => null])
 
 export const SearchStateProvider = (props: { children: ReactNode }) => {
-  const searchState = useState('')
+  const searchState = useState("")
 
   return (
     <SearchStateContext.Provider value={searchState}>{props.children}</SearchStateContext.Provider>
@@ -55,7 +55,7 @@ const SearchInput = styled(RichTextInput).attrs({
   font-size: 15px;
 `
 
-const SearchIcon = styled(Icon).attrs({ name: 'search' })`
+const SearchIcon = styled(Icon).attrs({ name: "search" })`
   flex: 0 0 20px;
   font-size: 18px;
 `

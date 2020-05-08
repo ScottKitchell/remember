@@ -26,7 +26,17 @@ function NotesScreen() {
   })
 
   const refreshData = useCallback(async () => {
-    let notesData = await NotesStore.all()
+    const at1DaysAgo = dayjs().subtract(1, "day")
+    let notesData: NoteBundle[]
+
+    if (filterOption === "all") notesData = await NotesStore.all()
+    else {
+      notesData = await NotesStore.filter(noteBundle =>
+        noteBundle.notes.some(
+          note => note.checkedAt === null || dayjs(note.checkedAt).isAfter(at1DaysAgo),
+        ),
+      )
+    }
 
     if (searchPhrase) {
       const searcher = new FuzzySearch(notesData, ["notes.text"])
@@ -34,7 +44,7 @@ function NotesScreen() {
     }
 
     setNoteBundles(notesData.reverse())
-  }, [searchPhrase])
+  }, [filterOption, searchPhrase])
 
   useEffect(() => {
     refreshData()

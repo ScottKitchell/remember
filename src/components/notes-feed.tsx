@@ -19,8 +19,6 @@ interface NotesProps {
 }
 
 export const NotesFeed = forwardRef<FlatList, NotesProps>((props, flatListRef) => {
-  console.log("NotesFeed: i -->", props.draftNoteIndexes)
-
   const feedItems = useMemo(() => {
     const draftNoteBundleIndex = props.draftNoteIndexes[0]
     const draftNoteIndex = props.draftNoteIndexes[1]
