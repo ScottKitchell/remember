@@ -12,7 +12,7 @@
     "@react-native-community/async-storage": "^1.8.1",
     "dayjs": "^1.8.23",
     "fuzzy-search": "^3.2.1",
-    "immer": "^6.0.3",
+    "immer": "^9.0.6",
     "react": "16.9.0",
     "react-native": "0.61.5",
     "react-native-vector-icons": "^6.6.0",
